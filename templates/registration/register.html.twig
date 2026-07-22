@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - FitBooking{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[#E5BA5A] flex flex-col items-center justify-center px-4 py-8">
+    
+    <div class="flex flex-col items-center mb-6">
+        <h1 class="text-4xl font-extrabold text-black tracking-wide drop-shadow-md font-sans">FitBooking</h1>
+    </div>
+
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-black">Bienvenue sur notre appli</h2>
+        <p class="text-sm text-gray-800 mt-1">Créer un compte gratuitement</p>
+    </div>
+
+    {{ form_start(registrationForm, {'attr': {'class': 'w-full max-w-sm space-y-4'}}) }}
+        
+        {# Champ Prénom #}
+        <div>
+            {{ form_widget(registrationForm.prenom, {
+                'attr': {
+                    'placeholder': 'Prenom',
+                    'class': 'w-full px-4 py-3 bg-[#D9D9D9] border border-gray-400 rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] text-gray-700 placeholder-gray-500 focus:outline-none'
+                }
+            }) }}
+        </div>
+
+        {# Champ Email #}
+        <div>
+            {{ form_widget(registrationForm.email, {
+                'attr': {
+                    'placeholder': 'Email',
+                    'class': 'w-full px-4 py-3 bg-[#D9D9D9] border border-gray-400 rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] text-gray-700 placeholder-gray-500 focus:outline-none'
+                }
+            }) }}
+        </div>
+
+        {# Champ Mot de passe #}
+        <div>
+            {{ form_widget(registrationForm.plainPassword.first, {
+                'attr': {
+                    'placeholder': 'Mot de passe',
+                    'class': 'w-full px-4 py-3 bg-[#D9D9D9] border border-gray-400 rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] text-gray-700 placeholder-gray-500 focus:outline-none'
+                }
+            }) }}
+        </div>
+
+        {# Champ Mot de passe verifie  #}
+        <div>
+            {{ form_widget(registrationForm.plainPassword.second, {
+                'attr': {
+                    'placeholder': 'Vérifier le mot de passe',
+                    'class': 'w-full px-4 py-3 bg-[#D9D9D9] border border-gray-400 rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] text-gray-700 placeholder-gray-500 focus:outline-none'
+                }
+            }) }}
+        </div>
+        
+        {# Case d'acceptation #}
+        <div class="flex items-center space-x-2 px-1 text-sm text-gray-900 py-1">
+            {{ form_widget(registrationForm.agreeTerms, {
+                'attr': {
+                    'class': 'w-5 h-5 rounded border-gray-400 text-[#2D2D30] focus:ring-0 cursor-pointer'
+                }
+            }) }}
+            <label for="{{ registrationForm.agreeTerms.vars.id }}" class="font-semibold cursor-pointer select-none">
+                J'accepte les conditions d'utilisation
+            </label>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-[#2D2D30] text-white font-semibold uppercase tracking-wider rounded-xl shadow-md hover:bg-[#1E1E20] transition duration-200">
+            S'inscrire
+        </button>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_login') }}" class="text-sm font-medium text-black underline hover:text-gray-800">
+                Déjà un compte ? Se connecter
+            </a>
+        </div>
+    {{ form_end(registrationForm) }}
+</div>
+{% endblock %}
