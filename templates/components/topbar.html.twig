@@ -1,0 +1,100 @@
+{# TOPBAR (Barre du haut) #}
+<header class="bg-[#1c1c1e] px-5 py-4 flex items-center justify-between border-b border-gray-800/50 max-w-md mx-auto w-full relative z-40">
+    <!-- Menu Burger -->
+    <button id="burger-btn" type="button" class="text-[#dfbe6b] hover:opacity-80 transition focus:outline-none cursor-pointer">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+
+    <!-- Titre FITBOOKING -->
+    <span class="text-white font-black text-xl tracking-wider uppercase italic">
+        FITBOOKING
+    </span>
+
+    <!-- Icône Profil (TopBar) -->
+    <a href="#" class="text-[#dfbe6b] hover:opacity-80 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+    </a>
+</header>
+
+<!-- OVERLAY PLEIN ÉCRAN AU CLIC (Design Image) -->
+<div id="full-menu-overlay" class="fixed inset-0 bg-[#171719] z-50 hidden transition-opacity duration-300 opacity-0 flex flex-col justify-between max-w-md mx-auto px-6 py-6">
+    
+    <!-- Bouton Croix (Haut Droite) -->
+    <div class="flex justify-end pt-2">
+        <button id="close-menu-btn" type="button" class="text-white hover:text-[#dfbe6b] text-3xl font-light focus:outline-none cursor-pointer transition">
+            &times;
+        </button>
+    </div>
+
+    <!-- Contenu du Menu Centré -->
+    <div class="flex flex-col items-center my-auto w-full max-w-xs mx-auto">
+        
+        <!-- Profil -->
+        <a href="/login" class="flex flex-col items-center group mb-6">
+            <div class="w-16 h-16 rounded-full bg-[#dfbe6b] flex items-center justify-center text-black shadow-lg mb-2 group-hover:scale-105 transition transform">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <span class="text-[#dfbe6b] font-extrabold text-sm tracking-wide">Login</span>
+        </a>
+
+        <!-- Liste des Boutons -->
+        <div class="w-full space-y-2.5">
+            <a href="/services" class="block w-full text-center py-3.5 bg-black border border-[#dfbe6b] rounded-full text-[#dfbe6b] font-black text-sm tracking-widest uppercase hover:bg-[#dfbe6b] hover:text-black transition shadow-md">
+                SERVICE
+            </a>
+            
+            <a href="/seances" class="block w-full text-center py-3.5 bg-black border border-[#dfbe6b] rounded-full text-[#dfbe6b] font-black text-sm tracking-widest uppercase hover:bg-[#dfbe6b] hover:text-black transition shadow-md">
+                SEANCE
+            </a>
+            
+            <a href="/coachs" class="block w-full text-center py-3.5 bg-black border border-[#dfbe6b] rounded-full text-[#dfbe6b] font-black text-sm tracking-widest uppercase hover:bg-[#dfbe6b] hover:text-black transition shadow-md">
+                COACH
+            </a>
+            
+            <a href="/notes" class="block w-full text-center py-3.5 bg-black border border-[#dfbe6b] rounded-full text-[#dfbe6b] font-black text-sm tracking-widest uppercase hover:bg-[#dfbe6b] hover:text-black transition shadow-md">
+                NOTE COACH
+            </a>
+            
+            <a href="/admin" class="block w-full text-center py-3.5 bg-black border border-[#dfbe6b] rounded-full text-[#dfbe6b] font-black text-sm tracking-widest uppercase hover:bg-[#dfbe6b] hover:text-black transition shadow-md">
+                ADMIN
+            </a>
+        </div>
+    </div>
+
+    <!-- Espace vide bas pour centrage -->
+    <div class="pb-6"></div>
+</div>
+
+<!-- SCRIPT JS INTERACTIF -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const burgerBtn = document.getElementById('burger-btn');
+    const closeBtn = document.getElementById('close-menu-btn');
+    const overlay = document.getElementById('full-menu-overlay');
+
+    function openMenu() {
+        overlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden'); // Empêche le scroll en arrière-plan
+        setTimeout(() => {
+            overlay.classList.remove('opacity-0');
+        }, 10);
+    }
+
+    function closeMenu() {
+        overlay.classList.add('opacity-0');
+        document.body.classList.remove('overflow-hidden');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 300);
+    }
+
+    if (burgerBtn) burgerBtn.addEventListener('click', openMenu);
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+});
+</script>

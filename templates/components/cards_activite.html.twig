@@ -1,0 +1,13 @@
+<div class="bg-[#dfbe6b] rounded-lg overflow-hidden flex flex-col justify-between shadow-lg">
+    <div class="h-36 overflow-hidden">
+        <img src="{{ asset('build/images/' ~ activite.image) }}" alt="{{ activite.titre }}" class="w-full h-full object-cover">
+    </div>
+    <div class="p-3 text-center">
+        <h3 class="font-black text-black text-sm uppercase leading-tight mb-3">
+            {{ activite.titre }}
+        </h3>
+        <a href="#" class="block w-full bg-gray-200 hover:bg-white text-black text-xs font-bold py-1.5 rounded transition">
+            Voir détails
+        </a>
+    </div>
+</div>
