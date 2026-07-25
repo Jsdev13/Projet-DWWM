@@ -1,20 +1,151 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
-
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{# Conteneur principal avec padding-bottom suffisant pour ne pas être masqué par la bottom navbar #}
+<div class="bg-[#1c1c1e] text-white min-h-screen pb-28 font-sans max-w-md mx-auto shadow-2xl">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    {# ========================================== #}
+    {# 1. HERO SECTION                            #}
+    {# ========================================== #}
+    <section class="relative">
+        <!-- Banner Image -->
+        <div class="h-52 w-full overflow-hidden bg-gray-900 relative">
+            <img 
+                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800" 
+                alt="FitBooking Pushups" 
+                class="w-full h-full object-cover opacity-90"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] via-transparent to-transparent"></div>
+        </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/home/user/Projet-DWWM/Projet-DWWM/src/Controller/HomeController.php</code></li>
-        <li>Your template at <code>/home/user/Projet-DWWM/Projet-DWWM/templates/home/index.html.twig</code></li>
-    </ul>
+        <!-- Hero Text -->
+        <div class="px-6 py-6 text-center">
+            <h1 class="text-2xl font-black tracking-wide uppercase leading-tight mb-3 text-white">
+                EXPLOITEZ PLEINEMENT VOTRE POTENTIEL.
+            </h1>
+            <p class="text-gray-400 italic text-xs mb-6 px-2 leading-relaxed">
+                Entraînement mental et de performance pour les athlètes et les entraîneurs
+            </p>
+            <a 
+                href="/seances" 
+                class="inline-flex items-center justify-center bg-[#dfbe6b] hover:bg-[#c9a756] text-black font-extrabold uppercase py-3.5 px-6 rounded text-xs tracking-wider transition shadow-lg"
+            >
+                COMMENCER L'ENTRAÎNEMENT
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    {# 2. SECTION ACTIVITÉS (GRILLE 2 COLONNES)   #}
+    <section id="activites" class="px-4 py-4 grid grid-cols-2 gap-3.5 border-t border-gray-800/60">
+        {% set default_activites = [
+            {'titre': 'Entraînement Boxe', 'image': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=400', 'slug': 'boxe'},
+            {'titre': 'Entraînement Cardio', 'image': 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80&w=400', 'slug': 'cardio'}
+        ] %}
+        {% set list_activites = activites is defined and activites|length > 0 ? activites : default_activites %}
+
+        {% for activite in list_activites %}
+            <div class="bg-[#dfbe6b] rounded-lg overflow-hidden flex flex-col justify-between shadow-md">
+                <div class="h-32 overflow-hidden relative bg-gray-800">
+                    <img 
+                        src="{{ activite.image starts with 'http' ? activite.image : asset('build/images/' ~ activite.image) }}" 
+                        alt="{{ activite.titre }}" 
+                        class="w-full h-full object-cover"
+                        onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=400'"
+                    />
+                </div>
+                <div class="p-2.5 text-center">
+                    <h3 class="font-black text-black text-xs uppercase mb-2 leading-tight">
+                        {{ activite.titre }}
+                    </h3>
+                    <a 
+                        href="#" 
+                        class="block w-full bg-gray-200 hover:bg-white text-black text-[11px] font-bold py-1.5 rounded transition shadow-sm"
+                    >
+                        Voir détails
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </section>
+
+    {# 3. SECTION ÉQUIPE / COACH                  #}
+    <section class="px-6 py-8 text-center border-t border-gray-800/80 mt-4">
+        <h2 class="text-lg font-black tracking-wider uppercase mb-6 text-white">
+            RENCONTRER NOS ÉQUIPES
+        </h2>
+        
+        <div class="flex flex-col items-center">
+            <!-- Avatar ronde avec bordure dorée -->
+            <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-[#dfbe6b] mb-3 shadow-lg bg-gray-800">
+                <img 
+                    src="{{ coach is defined and coach.photo is defined and coach.photo starts with 'http' ? coach.photo : 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&q=80&w=300' }}" 
+                    alt="{{ coach.nom ?? 'Loïc Leclair' }}" 
+                    class="w-full h-full object-cover"
+                    onerror="this.src='https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&q=80&w=300'"
+                />
+            </div>
+            
+            <!-- Intitulé / Rôle -->
+            <span class="text-[#e5534b] font-extrabold text-xs uppercase tracking-widest">
+                COACH {{ coach.nom ?? 'LOÏC LECLAIR' }}
+            </span>
+
+            <!-- Bio -->
+            <p class="text-gray-300 text-xs mt-2.5 max-w-xs leading-relaxed px-2">
+                {{ coach.bio ?? 'Passionné de boxe depuis plusieurs années, Loïc partage son expérience avec tous les niveaux, du débutant au confirmé.' }}
+            </p>
+
+            <!-- Bouton -->
+            <a 
+                href="#" 
+                class="mt-4 inline-block bg-gray-200 hover:bg-white text-black text-[11px] font-bold py-1.5 px-5 rounded transition shadow-sm"
+            >
+                Lire plus &rarr;
+            </a>
+        </div>
+    </section>
+
+    {# 4. SECTION EMPLACEMENT / MAP               #}
+    <section class="px-4 py-6 border-t border-gray-800/80 text-center">
+        <h2 class="text-lg font-black tracking-wider uppercase text-[#dfbe6b] mb-4">
+            NOTRE EMPLACEMENT
+        </h2>
+
+        <!-- Google Maps Embed Container -->
+        <div class="relative rounded-lg overflow-hidden border border-gray-700 h-44 mb-3 shadow-md bg-gray-900">
+            <iframe 
+                title="Carte FitBooking Toulouse"
+                class="w-full h-full border-0 filter contrast-125 brightness-90"
+                loading="lazy"
+                allowfullscreen
+                src="https://maps.google.com/maps?q=17%20All%C3%A9e%20Jean%20Jaur%C3%A8s%20Toulouse&t=&z=15&ie=UTF8&iwloc=&output=embed">
+            </iframe>
+        </div>
+
+        <!-- Adresse avec icône rouge -->
+        <p class="text-xs text-[#e5534b] flex items-center justify-center font-bold mb-4">
+            <svg class="w-4 h-4 mr-1.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+            {{ adresse ?? '17 Allée, Jean Jaurès, 31000 Toulouse' }}
+        </p>
+
+        <!-- Bouton Google Maps -->
+        <a 
+            href="https://maps.google.com/?q={{ (adresse ?? '17 Allée Jean Jaurès 31000 Toulouse')|url_encode }}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="inline-flex items-center bg-[#dfbe6b] hover:bg-[#c9a756] text-black text-xs font-black uppercase py-2.5 px-5 rounded shadow transition"
+        >
+            OUVRIR DANS MAPS 
+            <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+        </a>
+    </section>
+
 </div>
 {% endblock %}
