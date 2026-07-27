@@ -13,11 +13,24 @@ class HomeController extends AbstractController
     #[Route('/home', name: 'app_home')]
     public function index(SeanceRepository $seanceRepo, CoachRepository $coachRepo): Response
     {
+        // Récupère la séance de boxe et de cardio directement depuis PostgreSQL
+        $seanceBoxe = $seanceRepo->findOneBy(['name' => 'Boxe : Shadow-boxing']);
+        $seanceCardio = $seanceRepo->findOneBy(['name' => 'Cardio : Endurance']);
+
         return $this->render('home/index.html.twig', [
-            // Données dynamiques
             'activites' => [
-                ['titre' => 'Entraînement Boxe', 'image' => 'boxe.jpg', 'slug' => 'boxe'],
-                ['titre' => 'Entraînement Cardio', 'image' => 'cardio.jpg', 'slug' => 'cardio'],
+                [
+                    'id' => $seanceBoxe ? $seanceBoxe->getId() : 2,
+                    'titre' => 'Entraînement Boxe', 
+                    'image' => 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=400', 
+                    'slug' => 'boxe'
+                ],
+                [
+                    'id' => $seanceCardio ? $seanceCardio->getId() : 3, 
+                    'titre' => 'Entraînement Cardio', 
+                    'image' => 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80&w=400', 
+                    'slug' => 'cardio'
+                ],
             ],
             'coach' => [
                 'nom' => 'Loïc Leclair',

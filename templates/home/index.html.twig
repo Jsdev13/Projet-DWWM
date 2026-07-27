@@ -4,9 +4,7 @@
 {# Conteneur principal avec padding-bottom suffisant pour ne pas être masqué par la bottom navbar #}
 <div class="bg-[#1c1c1e] text-white min-h-screen pb-28 font-sans max-w-md mx-auto shadow-2xl">
 
-    {# ========================================== #}
-    {# 1. HERO SECTION                            #}
-    {# ========================================== #}
+    {# 1. HERO SECTION  #}
     <section class="relative">
         <!-- Banner Image -->
         <div class="h-52 w-full overflow-hidden bg-gray-900 relative">
@@ -40,10 +38,10 @@
 
     {# 2. SECTION ACTIVITÉS (GRILLE 2 COLONNES)   #}
     <section id="activites" class="px-4 py-4 grid grid-cols-2 gap-3.5 border-t border-gray-800/60">
-        {% set default_activites = [
-            {'titre': 'Entraînement Boxe', 'image': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=400', 'slug': 'boxe'},
-            {'titre': 'Entraînement Cardio', 'image': 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80&w=400', 'slug': 'cardio'}
-        ] %}
+         {% set default_activites = [
+         {'id': 2, 'titre': 'Entraînement Boxe', 'image': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=400', 'slug': 'boxe'},
+         {'id': 3, 'titre': 'Entraînement Cardio', 'image': 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80&w=400', 'slug': 'cardio'}
+         ] %}
         {% set list_activites = activites is defined and activites|length > 0 ? activites : default_activites %}
 
         {% for activite in list_activites %}
@@ -61,7 +59,7 @@
                         {{ activite.titre }}
                     </h3>
                     <a 
-                        href="#" 
+                        href="{{ path('app_seance_show', {'id': activite.id}) }}"
                         class="block w-full bg-gray-200 hover:bg-white text-black text-[11px] font-bold py-1.5 rounded transition shadow-sm"
                     >
                         Voir détails
@@ -71,7 +69,7 @@
         {% endfor %}
     </section>
 
-    {# 3. SECTION ÉQUIPE / COACH                  #}
+    {# 3. SECTION ÉQUIPE / COACH #}
     <section class="px-6 py-8 text-center border-t border-gray-800/80 mt-4">
         <h2 class="text-lg font-black tracking-wider uppercase mb-6 text-white">
             RENCONTRER NOS ÉQUIPES
@@ -108,7 +106,7 @@
         </div>
     </section>
 
-    {# 4. SECTION EMPLACEMENT / MAP               #}
+    {# 4. SECTION EMPLACEMENT / MAP #}
     <section class="px-4 py-6 border-t border-gray-800/80 text-center">
         <h2 class="text-lg font-black tracking-wider uppercase text-[#dfbe6b] mb-4">
             NOTRE EMPLACEMENT
