@@ -26,6 +26,16 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private ?Seance $seance = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    public function __construct()
+    {
+        // Initialisation automatique des dates pour ne plus jamais avoir de valeur NULL
+        $this->date_create = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +85,18 @@ class Reservation
     public function setSeance(?Seance $seance): static
     {
         $this->seance = $seance;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

@@ -2,79 +2,120 @@
 
 namespace App\Controller;
 
+use App\Entity\Seance;
+use App\Entity\Reservation;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class SeanceController extends AbstractController
 {
     #[Route('/seances', name: 'app_seance_index')]
-    public function index(): Response
+    public function index(EntityManagerInterface $em): Response
     {
-        // Jours de la semaine
-        $jours = [
-            ['nom' => 'Lun', 'numero' => 16, 'actif' => true],
-            ['nom' => 'Mar', 'numero' => 17, 'actif' => false],
-            ['nom' => 'Mer', 'numero' => 18, 'actif' => false],
-            ['nom' => 'Jeu', 'numero' => 19, 'actif' => false],
-            ['nom' => 'Ven', 'numero' => 20, 'actif' => false],
-        ];
-
-        // Liste des séances disponibles (données de démonstration)
-        $seances = [
-            [
-                'id' => 1,
-                'titre' => 'Hypertrophie',
-                'categorie' => 'MUSCU',
-                'duree' => '60 MIN',
-                'places_restantes' => 3,
-                'est_plein' => false,
-                'heure_debut' => '08:00 H',
-                'heure_fin' => '09:00 H',
-                'coach' => 'Coach Alexis',
-                'image' => 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80&w=400'
-            ],
-            [
-                'id' => 2,
-                'titre' => 'Cardio HIT',
-                'categorie' => 'CARDIO',
-                'duree' => '45 MIN',
-                'places_restantes' => 12,
-                'est_plein' => false,
-                'heure_debut' => '10:30 H',
-                'heure_fin' => '11:15 H',
-                'coach' => 'Coach Loïc',
-                'image' => 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=400'
-            ],
-            [
-                'id' => 3,
-                'titre' => 'Boxe Anglaise',
-                'categorie' => 'BOXE',
-                'duree' => '30 MIN',
-                'places_restantes' => 1,
-                'est_plein' => false,
-                'heure_debut' => '11:00 H',
-                'heure_fin' => '11:30 H',
-                'coach' => 'Coach Gaetan',
-                'image' => 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=400'
-            ],
-            [
-                'id' => 4,
-                'titre' => 'Renforcement',
-                'categorie' => 'MUSCU',
-                'duree' => '50 MIN',
-                'places_restantes' => 0,
-                'est_plein' => true,
-                'heure_debut' => '12:00 H',
-                'heure_fin' => '12:50 H',
-                'coach' => 'Coach Jonathan',
-                'image' => 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=400'
-            ],
-        ];
+        $seances = $em->getRepository(Seance::class)->findAll();
 
         return $this->render('seance/index.html.twig', [
-            'jours' => $jours,
             'seances' => $seances,
         ]);
+    }
+
+    #[Route('/seance/{id}', name: 'app_seance_show', requirements: ['id' => '\d+'])]
+    public function show(?Seance $seance): Response
+    {
+        if (!$seance) {
+            throw $this->createNotFoundException('Cette séance n\'existe pas dans la base de données.');
+        }
+
+        return $this->render('seance/show.html.twig', [
+            'seance' => $seance,
+        ]);
+    }
+
+    #[Route('/seance/{id}/reserver', name: 'app_seance_reserver', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function reserver(Seance $seance, EntityManagerInterface $em): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+
+        // Empêcher les doublons
+        $existingReservation = $em->getRepository(Reservation::class)->findOneBy([
+            'member' => $user,
+            'seance' => $seance,
+        ]);
+
+        if ($existingReservation) {
+            $this->addFlash('warning', 'Vous avez déjà réservé cette séance.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        // Création de la réservation en BDD
+        $reservation = new Reservation();
+        $reservation->setMember($user);
+        $reservation->setSeance($seance);
+        $reservation->setStatut('CONFIRME');
+
+        // Définition de la date courante
+        $now = new \DateTime();
+        $reservation->setDateCreate($now);
+
+        // Remplissage dynamique du champ created_at selon ce que prend l'entité
+        if (method_exists($reservation, 'setCreatedAt')) {
+            try {
+                $reservation->setCreatedAt(new \DateTimeImmutable());
+            } catch (\TypeError $e) {
+                $reservation->setCreatedAt($now);
+            }
+        }
+
+        $em->persist($reservation);
+        $em->flush();
+
+        // Utilisation de getName() au lieu de getTitre()
+        $this->addFlash('success', sprintf('Félicitations ! Votre place pour "%s" est réservée.', $seance->getName()));
+
+        return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/creer-seances-test', name: 'app_test_seances')]
+    public function creerSeancesTest(EntityManagerInterface $em): Response
+    {
+        // Séance 1
+        $s1 = new Seance();
+        $s1->setName('Hypertrophie : Force');
+        $s1->setDate(new \DateTime('2026-08-19'));
+        $s1->setStartTime(new \DateTime('10:00:00'));
+        $s1->setEndTime(new \DateTime('10:45:00'));
+        $s1->setLevel('Avancé');
+        $s1->setCapacityMax(15);
+
+        // Séance 2
+        $s2 = new Seance();
+        $s2->setName('Boxe : Shadow-boxing');
+        $s2->setDate(new \DateTime('2026-09-21'));
+        $s2->setStartTime(new \DateTime('14:00:00'));
+        $s2->setEndTime(new \DateTime('14:20:00'));
+        $s2->setLevel('Intermédiaire');
+        $s2->setCapacityMax(10);
+
+        // Séance 3
+        $s3 = new Seance();
+        $s3->setName('Cardio : Endurance');
+        $s3->setDate(new \DateTime('2026-10-18'));
+        $s3->setStartTime(new \DateTime('18:00:00'));
+        $s3->setEndTime(new \DateTime('18:15:00'));
+        $s3->setLevel('Débutant');
+        $s3->setCapacityMax(20);
+
+        // Enregistrement en base de données PostgreSQL
+        $em->persist($s1);
+        $em->persist($s2);
+        $em->persist($s3);
+        $em->flush();
+
+        return new Response('<h1>✅ 3 séances de test ont été créées avec succès en BDD !</h1><p><a href="/">Retourner à l\'accueil</a></p>');
     }
 }

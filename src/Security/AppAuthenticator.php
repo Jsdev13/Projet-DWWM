@@ -27,23 +27,22 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
     }
 
     public function authenticate(Request $request): Passport
-{
-    // 1. Déclarer les variables en récupérant les données du formulaire
-    $email = $request->request->get('_username', '');
-    $password = $request->request->get('_password', '');
+    {
+        // 1. Déclarer les variables en récupérant les données du formulaire
+        $email = $request->request->get('_username', '');
+        $password = $request->request->get('_password', '');
 
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
-    $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
-
-    return new Passport(
-        new UserBadge($email),
-        new PasswordCredentials($password),
-        [
-            new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
-            new RememberMeBadge(),
-        ]
-    );
-}
+        return new Passport(
+            new UserBadge($email),
+            new PasswordCredentials($password),
+            [
+                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
+                new RememberMeBadge(),
+            ]
+        );
+    }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
@@ -51,7 +50,7 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('/home'));
+        return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 
     protected function getLoginUrl(Request $request): string

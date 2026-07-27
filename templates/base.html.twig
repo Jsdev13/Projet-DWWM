@@ -22,16 +22,38 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body class="bg-[#1c1c1e] text-white min-h-screen font-sans flex flex-col">
-        {# 1. TopBar (Barre du haut : Burger + Titre + Profil) #}
-        {% include 'components/topbar.html.twig' %}
+    <body class="bg-[#E5BA5A] text-white min-h-screen font-sans flex flex-col">
+        
+        {% if app.current_route not in ['app_login', 'app_register'] %}
+            {% include 'components/topbar.html.twig' %}
+        {% endif %}
 
-        {# 2. Contenu spécifique de chaque page #}
-        <main class="flex-1">
+        <main class="flex-1 flex flex-col">
             {% block body %}{% endblock %}
         </main>
 
-        {# 3. NavBar (Barre du bas : Navigation mobile fixe) #}
-        {% include 'components/navbar.html.twig' %}
+        {% if app.current_route not in ['app_login', 'app_register'] %}
+            {% include 'components/navbar.html.twig' %}
+        {% endif %}
+
+        <script>
+        function initBurgerMenu() {
+            const burgerBtn = document.getElementById('burger-btn') || document.querySelector('.burger-button') || document.querySelector('[data-burger]');
+            const mobileMenu = document.getElementById('mobile-menu') || document.querySelector('.mobile-menu') || document.querySelector('[data-menu]');
+
+            if (!burgerBtn || !mobileMenu) return;
+
+            const newBtn = burgerBtn.cloneNode(true);
+            burgerBtn.parentNode.replaceChild(newBtn, burgerBtn);
+
+            newBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initBurgerMenu);
+        document.addEventListener('turbo:load', initBurgerMenu);
+        </script>
     </body>
 </html>
