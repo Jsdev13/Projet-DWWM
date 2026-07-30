@@ -7,14 +7,13 @@
         <title>{% block title %}FitBooking{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         <script src="https://cdn.tailwindcss.com"></script>
+        <meta name="turbo-visit-control" content="reload">
         
         {% block stylesheets %}
         {% endblock %}
-
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
-
         {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
         {% if frankenphpHotReload %}
         <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
@@ -27,33 +26,39 @@
         {% if app.current_route not in ['app_login', 'app_register'] %}
             {% include 'components/topbar.html.twig' %}
         {% endif %}
-
         <main class="flex-1 flex flex-col">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="px-4 py-3 mx-4 mt-4 rounded-lg text-sm font-medium
+                        {% if label == 'success' %} bg-green-100 text-green-800 border border-green-300
+                        {% elseif label == 'warning' %} bg-red-100 text-red-800 border border-yellow-300
+                        {% elseif label == 'danger' %} bg-red-100 text-red-800 border border-red-300
+                        {% else %} bg-gray-100 text-gray-800 border border-gray-300
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
             {% block body %}{% endblock %}
         </main>
-
         {% if app.current_route not in ['app_login', 'app_register'] %}
             {% include 'components/navbar.html.twig' %}
         {% endif %}
 
-        <script>
-        function initBurgerMenu() {
-            const burgerBtn = document.getElementById('burger-btn') || document.querySelector('.burger-button') || document.querySelector('[data-burger]');
-            const mobileMenu = document.getElementById('mobile-menu') || document.querySelector('.mobile-menu') || document.querySelector('[data-menu]');
-
-            if (!burgerBtn || !mobileMenu) return;
-
-            const newBtn = burgerBtn.cloneNode(true);
-            burgerBtn.parentNode.replaceChild(newBtn, burgerBtn);
-
-            newBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                mobileMenu.classList.toggle('hidden');
-            });
+    <script>
+    document.addEventListener('click', function (e) {
+    // On écoute tous les clics sur la page
+    const btn = e.target.closest('button[onclick*="mobile-drawer"]');
+    if (btn) {
+        e.preventDefault();
+        const drawer = document.getElementById('mobile-drawer');
+        if (drawer) {
+            drawer.classList.toggle('hidden');
         }
+    }
+    });
+    </script>
 
-        document.addEventListener('DOMContentLoaded', initBurgerMenu);
-        document.addEventListener('turbo:load', initBurgerMenu);
-        </script>
+    
     </body>
 </html>
