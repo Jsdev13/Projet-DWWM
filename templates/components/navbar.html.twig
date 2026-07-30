@@ -3,16 +3,16 @@
 {# 1. TOP HEADER #}
 <header class="sticky top-0 z-40 backdrop-blur-sm bg-[#141415]/90 border-b border-gray-800/80 px-4 py-3.5 flex items-center justify-between">
     
-<button 
-    id="burger-btn"
-    type="button"
-    aria-label="Ouvrir le menu"
-    class="p-1.5 rounded-lg text-white hover:bg-gray-800/60 transition-colors focus:outline-none"
->
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-    </svg>
-</button>
+    <button 
+        id="burger-btn"
+        type="button"
+        aria-label="Ouvrir le menu"
+        class="p-1.5 rounded-lg text-white hover:bg-gray-800/60 transition-colors focus:outline-none"
+    >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
 
     <a href="{{ path('app_home') }}" class="flex items-center">
         <span class="text-2xl font-black italic tracking-wider text-white uppercase">FitBooking</span>
@@ -48,17 +48,17 @@
             <span>ACCUEIL</span>
         </a>
 
-        {# MEMBRE : Lien vers Historique / Mes séances #}
+        {# TOUS : Nos Coaches #}
+        <a href="{{ path('app_coach_index') }}" class="flex items-center space-x-3 text-lg font-bold {{ current_route == 'app_coach_index' ? 'text-[#dfbe6b]' : 'text-gray-200' }} hover:text-[#dfbe6b] py-2 border-b border-gray-800/50 transition-colors">
+            <span>NOS COACHES</span>
+        </a>
+
+        {# MEMBRE : Lien vers Historique #}
         {% if is_granted('ROLE_USER') %}
-            <a href="{{ path('app_profile') }}" class="flex items-center space-x-3 text-lg font-bold {{ current_route in ['app_profile', 'app_historique'] ? 'text-[#dfbe6b]' : 'text-gray-200' }} py-2 border-b border-gray-800/50">
+            <a href="{{ path('app_historique') }}" class="flex items-center space-x-3 text-lg font-bold {{ current_route == 'app_historique' ? 'text-[#dfbe6b]' : 'text-gray-200' }} py-2 border-b border-gray-800/50">
                 <span>MON HISTORIQUE</span>
             </a>
         {% endif %}
-
-        {# TOUS : Nos Coaches (Déplacé ici pour libérer de la place en bas) #}
-        <a href="#" class="flex items-center space-x-3 text-lg font-bold text-gray-200 hover:text-[#dfbe6b] py-2 border-b border-gray-800/50 transition-colors">
-            <span>NOS COACHES</span>
-        </a>
 
         {# ADMIN : Espace Administration #}
         {% if is_granted('ROLE_ADMIN') %}
@@ -96,12 +96,12 @@
         <span class="text-[10px] font-black uppercase mt-1">HOME</span>
     </a>
 
-    {# 2. HISTORIQUE #}
-    <a href="{{ app.user ? path('app_historique') : path('app_login') }}" class="flex flex-col items-center py-1 {{ current_route == 'app_historique' ? 'text-[#dfbe6b]' : 'text-gray-400 hover:text-gray-200' }}">
+    {# 2. COACH (Identique à ton image modèle) #}
+    <a href="{{ path('app_coach_index') }}" class="flex flex-col items-center py-1 {{ current_route == 'app_coach_index' ? 'text-[#dfbe6b]' : 'text-gray-400 hover:text-gray-200' }}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
         </svg>
-        <span class="text-[10px] font-black uppercase mt-1">HISTORIQUE</span>
+        <span class="text-[10px] font-black uppercase mt-1">COACH</span>
     </a>
 
     {# 3. ESPACE MEMBRE / CONNEXION #}
