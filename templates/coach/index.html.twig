@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Équipes - FitBooking{% endblock %}
+
+{% block body %}
+<div class="bg-[#E5BA5A] min-h-screen text-black pb-28 pt-6 px-6 max-w-md md:max-w-4xl mx-auto transition-all duration-300">
+
+    {# En-tête de la page #}
+    <div class="text-center mb-8">
+        <h1 class="text-2xl md:text-3xl font-black tracking-widest text-black uppercase">
+            NOS ÉQUIPES
+        </h1>
+        <div class="w-12 h-1 bg-black mx-auto mt-2 rounded-full"></div>
+    </div>
+
+    {# Liste des coachs #}
+    <div class="space-y-10">
+        {% for coach in coachs %}
+            {# Support pour objet BDD ou Tableau array de test #}
+            {% set nom = coach.nom is defined ? coach.nom : (coach.fullName is defined ? coach.fullName : coach.name|default('Coach')) %}
+            {% set desc = coach.description is defined ? coach.description : (coach.bio is defined ? coach.bio : 'Coach passionné et diplômé, prêt à vous accompagner dans la réalisation de vos objectifs sportifs.') %}
+            {% set photo = coach.photo is defined ? coach.photo : (coach.avatar is defined ? coach.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400') %}
+            {% set id = coach.id is defined ? coach.id : loop.index %}
+
+            <div class="flex flex-col items-center text-center space-y-4">
+                
+                {# Photo circulaire avec bordure et effet ombre #}
+                <div class="relative w-44 h-44 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-black/10 shadow-xl bg-gray-900 flex-shrink-0">
+                    <img src="{{ photo }}" alt="Coach {{ nom }}" class="w-full h-full object-cover">
+                </div>
+
+                {# Nom du Coach #}
+                <h2 class="text-xl md:text-2xl font-black text-black tracking-wide uppercase">
+                    COACH {{ nom }}
+                </h2>
+
+                {# Description en italique #}
+                <p class="text-xs md:text-sm font-semibold italic text-gray-900 leading-relaxed max-w-sm px-2 opacity-90">
+                    {{ desc }}
+                </p>
+
+                {# Bouton LIRE PLUS #}
+                <a href="{{ path('app_coach_show', {'id': id}) }}" class="inline-flex items-center space-x-2 bg-black text-white px-8 py-2.5 rounded-full text-xs font-black tracking-wider uppercase shadow-md hover:bg-gray-800 transition transform active:scale-95">
+    <span>LIRE PLUS</span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+    </svg>
+</a>
+
+                {# Séparateur discret entre les coachs #}
+                {% if not loop.last %}
+                    <div class="w-full border-b border-black/15 pt-6"></div>
+                {% endif %}
+
+            </div>
+        {% else %}
+            <div class="text-center py-12 text-black font-extrabold text-sm">
+                Aucun coach n'est disponible pour le moment.
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

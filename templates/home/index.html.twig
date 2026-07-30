@@ -96,9 +96,9 @@
                 {{ coach.bio ?? 'Passionné de boxe depuis plusieurs années, Loïc partage son expérience avec tous les niveaux, du débutant au confirmé.' }}
             </p>
 
-            <!-- Bouton -->
+            <!-- Bouton avec le lien vers la fiche du coach 1 -->
             <a 
-                href="#" 
+                href="{{ path('app_coach_show', {'id': coach.id ?? 1}) }}" 
                 class="mt-4 inline-block bg-gray-200 hover:bg-white text-black text-[11px] font-bold py-1.5 px-5 rounded transition shadow-sm"
             >
                 Lire plus &rarr;
