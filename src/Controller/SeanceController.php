@@ -46,10 +46,16 @@ class SeanceController extends AbstractController
             'member' => $user,
             'seance' => $seance,
         ]);
-
         if ($existingReservation) {
             $this->addFlash('warning', 'Vous avez déjà réservé cette séance.');
             return $this->redirectToRoute('app_profile');
+        }
+
+        // Vérifier que la séance n'est pas complète
+        $nbReservations = $em->getRepository(Reservation::class)->count(['seance' => $seance]);
+        if ($nbReservations >= $seance->getCapacityMax()) {
+            $this->addFlash('warning', 'Désolé, cette séance est complète, il n\'y a plus de place disponible.');
+            return $this->redirectToRoute('app_seance_show', ['id' => $seance->getId()]);
         }
 
         // Création de la réservation en BDD
@@ -76,46 +82,88 @@ class SeanceController extends AbstractController
 
         // Utilisation de getName() au lieu de getTitre()
         $this->addFlash('success', sprintf('Félicitations ! Votre place pour "%s" est réservée.', $seance->getName()));
-
         return $this->redirectToRoute('app_profile');
     }
 
     #[Route('/creer-seances-test', name: 'app_test_seances')]
-    public function creerSeancesTest(EntityManagerInterface $em): Response
+public function creerSeancesTest(EntityManagerInterface $em): Response
+{
+    // Séance 1
+    $s1 = new Seance();
+    $s1->setName('Hypertrophie : Force');
+    $s1->setDate(new \DateTime('2026-08-19'));
+    $s1->setStartTime(new \DateTime('10:00:00'));
+    $s1->setEndTime(new \DateTime('10:45:00'));
+    $s1->setLevel('Avancé');
+    $s1->setCapacityMax(15);
+
+    // Séance 2
+    $s2 = new Seance();
+    $s2->setName('Boxe : Shadow-boxing');
+    $s2->setDate(new \DateTime('2026-09-21'));
+    $s2->setStartTime(new \DateTime('14:00:00'));
+    $s2->setEndTime(new \DateTime('14:20:00'));
+    $s2->setLevel('Intermédiaire');
+    $s2->setCapacityMax(10);
+
+    // Séance 3
+    $s3 = new Seance();
+    $s3->setName('Cardio : Endurance');
+    $s3->setDate(new \DateTime('2026-10-18'));
+    $s3->setStartTime(new \DateTime('18:00:00'));
+    $s3->setEndTime(new \DateTime('18:15:00'));
+    $s3->setLevel('Débutant');
+    $s3->setCapacityMax(20);
+
+    // Séance 4 - dédiée au test du contrôle de capacité (1 seule place)
+    $s4 = new Seance();
+    $s4->setName('TEST Capacité - 1 place');
+    $s4->setDate(new \DateTime('2026-08-25'));
+    $s4->setStartTime(new \DateTime('09:00:00'));
+    $s4->setEndTime(new \DateTime('09:30:00'));
+    $s4->setLevel('Débutant');
+    $s4->setCapacityMax(1);
+
+    // Séance 5 - dédiée au test de l'historique (date PASSÉE)
+    $s5 = new Seance();
+    $s5->setName('Boxe : Test Historique');
+    $s5->setDate(new \DateTime('2025-01-10'));
+    $s5->setStartTime(new \DateTime('10:00:00'));
+    $s5->setEndTime(new \DateTime('10:45:00'));
+    $s5->setLevel('Débutant');
+    $s5->setCapacityMax(10);
+
+    // Enregistrement en base de données PostgreSQL
+    $em->persist($s1);
+    $em->persist($s2);
+    $em->persist($s3);
+    $em->persist($s4);
+    $em->persist($s5);
+    $em->flush();
+
+    return new Response('<h1>✅ 5 séances de test ont été créées avec succès en BDD !</h1><p><a href="/">Retourner à l\'accueil</a></p>');
+}
+
+    #[Route('/historique', name: 'app_historique')]
+    #[IsGranted('ROLE_USER')]
+    public function historique(EntityManagerInterface $em): Response
     {
-        // Séance 1
-        $s1 = new Seance();
-        $s1->setName('Hypertrophie : Force');
-        $s1->setDate(new \DateTime('2026-08-19'));
-        $s1->setStartTime(new \DateTime('10:00:00'));
-        $s1->setEndTime(new \DateTime('10:45:00'));
-        $s1->setLevel('Avancé');
-        $s1->setCapacityMax(15);
+    $user = $this->getUser();
 
-        // Séance 2
-        $s2 = new Seance();
-        $s2->setName('Boxe : Shadow-boxing');
-        $s2->setDate(new \DateTime('2026-09-21'));
-        $s2->setStartTime(new \DateTime('14:00:00'));
-        $s2->setEndTime(new \DateTime('14:20:00'));
-        $s2->setLevel('Intermédiaire');
-        $s2->setCapacityMax(10);
+    $historiques = $em->getRepository(Reservation::class)->createQueryBuilder('r')
+        ->join('r.seance', 's')
+        ->addSelect('s')
+        ->where('r.member = :user')
+        ->andWhere('s.date < :today')
+        ->setParameter('user', $user)
+        ->setParameter('today', new \DateTime('today'))
+        ->orderBy('s.date', 'DESC')
+        ->getQuery()
+        ->getResult();
 
-        // Séance 3
-        $s3 = new Seance();
-        $s3->setName('Cardio : Endurance');
-        $s3->setDate(new \DateTime('2026-10-18'));
-        $s3->setStartTime(new \DateTime('18:00:00'));
-        $s3->setEndTime(new \DateTime('18:15:00'));
-        $s3->setLevel('Débutant');
-        $s3->setCapacityMax(20);
-
-        // Enregistrement en base de données PostgreSQL
-        $em->persist($s1);
-        $em->persist($s2);
-        $em->persist($s3);
-        $em->flush();
-
-        return new Response('<h1>✅ 3 séances de test ont été créées avec succès en BDD !</h1><p><a href="/">Retourner à l\'accueil</a></p>');
+    return $this->render('historique/index.html.twig', [
+        'historiques' => $historiques,
+        'total_historique' => count($historiques),
+    ]);
     }
 }
