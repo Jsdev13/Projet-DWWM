@@ -21,11 +21,13 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body class="bg-[#E5BA5A] text-white min-h-screen font-sans flex flex-col">
+    <body class="bg-[#141415] text-white min-h-screen font-sans flex flex-col">
         
-        {% if app.current_route not in ['app_login', 'app_register'] %}
+        {# On affiche la topbar seulement si on n'est pas sur login/register ET si hide_topbar n'est pas activé #}
+        {% if app.current_route not in ['app_login', 'app_register'] and (hide_topbar is not defined or not hide_topbar) %}
             {% include 'components/topbar.html.twig' %}
         {% endif %}
+
         <main class="flex-1 flex flex-col">
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
@@ -41,24 +43,25 @@
             {% endfor %}
             {% block body %}{% endblock %}
         </main>
-        {% if app.current_route not in ['app_login', 'app_register'] %}
+
+        {# Même condition pour la navbar du bas #}
+        {% if app.current_route not in ['app_login', 'app_register'] and (hide_topbar is not defined or not hide_topbar) %}
             {% include 'components/navbar.html.twig' %}
         {% endif %}
 
     <script>
     document.addEventListener('click', function (e) {
-    // On écoute tous les clics sur la page
-    const btn = e.target.closest('button[onclick*="mobile-drawer"]');
-    if (btn) {
-        e.preventDefault();
-        const drawer = document.getElementById('mobile-drawer');
-        if (drawer) {
-            drawer.classList.toggle('hidden');
+        // On écoute tous les clics sur la page
+        const btn = e.target.closest('button[onclick*="mobile-drawer"]');
+        if (btn) {
+            e.preventDefault();
+            const drawer = document.getElementById('mobile-drawer');
+            if (drawer) {
+                drawer.classList.toggle('hidden');
+            }
         }
-    }
     });
     </script>
 
-    
     </body>
 </html>

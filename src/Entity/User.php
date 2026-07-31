@@ -54,10 +54,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
         $this->notes = new ArrayCollection();
+        $this->notesReceived = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -218,4 +220,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     return $this;
     } 
+
+
+    /**
+     * @var Collection<int, Note>
+     */
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'coach')]
+    private Collection $notesReceived;
+
+
+    /**
+     * @return Collection<int, Note>
+     */
+    public function getNotesReceived(): Collection
+    {
+        return $this->notesReceived;
+    }
+
+    /**
+     * Calcule la moyenne des notes du coach
+     */
+    public function getAverageRating(): float
+    {
+        if ($this->notesReceived->isEmpty()) {
+            return 0.0;
+        }
+
+        $total = 0;
+        foreach ($this->notesReceived as $note) {
+            $total += $note->getValeur();
+        }
+
+        return round($total / count($this->notesReceived), 1);
+    }
 }

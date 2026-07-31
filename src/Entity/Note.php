@@ -23,8 +23,12 @@ class Note
     private ?User $member = null;
 
     #[ORM\ManyToOne(inversedBy: 'notes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Seance $seance = null;
+
+    // Remplacement du lien User par une simple chaîne de caractères pour le nom du coach
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $coachName = null;
 
     public function getId(): ?int
     {
@@ -75,6 +79,18 @@ class Note
     public function setSeance(?Seance $seance): static
     {
         $this->seance = $seance;
+
+        return $this;
+    }
+
+    public function getCoachName(): ?string
+    {
+        return $this->coachName;
+    }
+
+    public function setCoachName(?string $coachName): static
+    {
+        $this->coachName = $coachName;
 
         return $this;
     }
