@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{# cacher la topbar #}
+{% set hide_topbar = true %}
+{% block title %}Merci pour votre retour - FitBooking{% endblock %}
+
+{% block body %}
+<div class="bg-[#141415] min-h-screen text-white flex flex-col justify-between p-6">
+
+    <div>
+        {# 1. HEADER PAGE #}
+        <div class="flex items-center justify-between py-4 border-b border-gray-800">
+            <a href="{{ path('app_home') }}" class="text-white hover:text-[#E5BA5A] transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>
+            <h1 class="text-lg font-black tracking-widest text-white uppercase">
+                NOTE DU COACH
+            </h1>
+            <div class="w-6"></div> {# Équilibre visuel #}
+        </div>
+
+        {# 2. CONTENU CONFIRMATION #}
+        <div class="flex flex-col items-center justify-center pt-12 text-center space-y-8">
+            
+            <!-- Icône Valider -->
+            <div class="w-20 h-20 bg-gray-900 border border-gray-700 rounded-2xl flex items-center justify-center shadow-lg">
+                <svg class="w-10 h-10 text-white stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+
+            <!-- Message principal -->
+            <h2 class="text-2xl font-black tracking-widest text-[#E5BA5A] uppercase leading-snug">
+                MERCI POUR VOTRE<br>RETOUR !
+            </h2>
+
+            <!-- Affichage de la note -->
+            <div class="pt-6 space-y-2">
+                <span class="block text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                    NOTE
+                </span>
+                <div class="flex items-center justify-center space-x-2">
+                    <span class="text-3xl font-black text-white tracking-tight">
+                        {{ rating }}
+                    </span>
+                    <div class="flex space-x-1 text-[#E5BA5A]">
+                        {% set intRating = rating|round(0, 'floor') %}
+                        {% for i in 1..5 %}
+                            <svg class="w-5 h-5 {{ i <= intRating ? 'fill-current' : 'text-gray-700 fill-current' }}" viewBox="0 0 24 24">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                            </svg>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# 3. BOUTON RETOUR #}
+    <div class="pb-16">
+        <a href="{{ path('app_home') }}" class="block w-full text-center bg-[#E5BA5A] hover:bg-[#d4aa4f] text-black font-black text-xs uppercase py-4 rounded-xl tracking-wider transition shadow-lg">
+            RETOURNER À L'ACCUEIL
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Seance;
 use App\Entity\Reservation;
+use App\Repository\SeanceRepository;
+use App\Repository\CategorieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,12 +15,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SeanceController extends AbstractController
 {
     #[Route('/seances', name: 'app_seance_index')]
-    public function index(EntityManagerInterface $em): Response
+    public function index(SeanceRepository $seanceRepository, CategorieRepository $categorieRepository): Response
     {
-        $seances = $em->getRepository(Seance::class)->findAll();
-
         return $this->render('seance/index.html.twig', [
-            'seances' => $seances,
+            'seances' => $seanceRepository->findAll(),
+            'categories' => $categorieRepository->findAll(),
         ]);
     }
 
@@ -80,90 +81,97 @@ class SeanceController extends AbstractController
         $em->persist($reservation);
         $em->flush();
 
-        // Utilisation de getName() au lieu de getTitre()
         $this->addFlash('success', sprintf('Félicitations ! Votre place pour "%s" est réservée.', $seance->getName()));
         return $this->redirectToRoute('app_profile');
     }
 
     #[Route('/creer-seances-test', name: 'app_test_seances')]
-public function creerSeancesTest(EntityManagerInterface $em): Response
-{
-    // Séance 1
-    $s1 = new Seance();
-    $s1->setName('Hypertrophie : Force');
-    $s1->setDate(new \DateTime('2026-08-19'));
-    $s1->setStartTime(new \DateTime('10:00:00'));
-    $s1->setEndTime(new \DateTime('10:45:00'));
-    $s1->setLevel('Avancé');
-    $s1->setCapacityMax(15);
+    public function creerSeancesTest(EntityManagerInterface $em, CategorieRepository $categorieRepository): Response
+    {
+        // On récupère une catégorie existante si possible pour l'associer
+        $categories = $categorieRepository->findAll();
+        $catTest = !empty($categories) ? $categories[0] : null;
 
-    // Séance 2
-    $s2 = new Seance();
-    $s2->setName('Boxe : Shadow-boxing');
-    $s2->setDate(new \DateTime('2026-09-21'));
-    $s2->setStartTime(new \DateTime('14:00:00'));
-    $s2->setEndTime(new \DateTime('14:20:00'));
-    $s2->setLevel('Intermédiaire');
-    $s2->setCapacityMax(10);
+        // Séance 1
+        $s1 = new Seance();
+        $s1->setName('Hypertrophie : Force');
+        $s1->setDate(new \DateTime('2026-08-19'));
+        $s1->setStartTime(new \DateTime('10:00:00'));
+        $s1->setEndTime(new \DateTime('10:45:00'));
+        $s1->setLevel('Avancé');
+        $s1->setCapacityMax(15);
+        if ($catTest && method_exists($s1, 'setCategorie')) { $s1->setCategorie($catTest); }
 
-    // Séance 3
-    $s3 = new Seance();
-    $s3->setName('Cardio : Endurance');
-    $s3->setDate(new \DateTime('2026-10-18'));
-    $s3->setStartTime(new \DateTime('18:00:00'));
-    $s3->setEndTime(new \DateTime('18:15:00'));
-    $s3->setLevel('Débutant');
-    $s3->setCapacityMax(20);
+        // Séance 2
+        $s2 = new Seance();
+        $s2->setName('Boxe : Shadow-boxing');
+        $s2->setDate(new \DateTime('2026-09-21'));
+        $s2->setStartTime(new \DateTime('14:00:00'));
+        $s2->setEndTime(new \DateTime('14:20:00'));
+        $s2->setLevel('Intermédiaire');
+        $s2->setCapacityMax(10);
+        if ($catTest && method_exists($s2, 'setCategorie')) { $s2->setCategorie($catTest); }
 
-    // Séance 4 - dédiée au test du contrôle de capacité (1 seule place)
-    $s4 = new Seance();
-    $s4->setName('TEST Capacité - 1 place');
-    $s4->setDate(new \DateTime('2026-08-25'));
-    $s4->setStartTime(new \DateTime('09:00:00'));
-    $s4->setEndTime(new \DateTime('09:30:00'));
-    $s4->setLevel('Débutant');
-    $s4->setCapacityMax(1);
+        // Séance 3
+        $s3 = new Seance();
+        $s3->setName('Cardio : Endurance');
+        $s3->setDate(new \DateTime('2026-10-18'));
+        $s3->setStartTime(new \DateTime('18:00:00'));
+        $s3->setEndTime(new \DateTime('18:15:00'));
+        $s3->setLevel('Débutant');
+        $s3->setCapacityMax(20);
+        if ($catTest && method_exists($s3, 'setCategorie')) { $s3->setCategorie($catTest); }
 
-    // Séance 5 - dédiée au test de l'historique (date PASSÉE)
-    $s5 = new Seance();
-    $s5->setName('Boxe : Test Historique');
-    $s5->setDate(new \DateTime('2025-01-10'));
-    $s5->setStartTime(new \DateTime('10:00:00'));
-    $s5->setEndTime(new \DateTime('10:45:00'));
-    $s5->setLevel('Débutant');
-    $s5->setCapacityMax(10);
+        // Séance 4
+        $s4 = new Seance();
+        $s4->setName('TEST Capacité - 1 place');
+        $s4->setDate(new \DateTime('2026-08-25'));
+        $s4->setStartTime(new \DateTime('09:00:00'));
+        $s4->setEndTime(new \DateTime('09:30:00'));
+        $s4->setLevel('Débutant');
+        $s4->setCapacityMax(1);
+        if ($catTest && method_exists($s4, 'setCategorie')) { $s4->setCategorie($catTest); }
 
-    // Enregistrement en base de données PostgreSQL
-    $em->persist($s1);
-    $em->persist($s2);
-    $em->persist($s3);
-    $em->persist($s4);
-    $em->persist($s5);
-    $em->flush();
+        // Séance 5
+        $s5 = new Seance();
+        $s5->setName('Boxe : Test Historique');
+        $s5->setDate(new \DateTime('2025-01-10'));
+        $s5->setStartTime(new \DateTime('10:00:00'));
+        $s5->setEndTime(new \DateTime('10:45:00'));
+        $s5->setLevel('Débutant');
+        $s5->setCapacityMax(10);
+        if ($catTest && method_exists($s5, 'setCategorie')) { $s5->setCategorie($catTest); }
 
-    return new Response('<h1>✅ 5 séances de test ont été créées avec succès en BDD !</h1><p><a href="/">Retourner à l\'accueil</a></p>');
-}
+        $em->persist($s1);
+        $em->persist($s2);
+        $em->persist($s3);
+        $em->persist($s4);
+        $em->persist($s5);
+        $em->flush();
+
+        return new Response('<h1>✅ 5 séances de test ont été créées avec succès en BDD !</h1><p><a href="/seances">Voir les séances</a></p>');
+    }
 
     #[Route('/historique', name: 'app_historique')]
     #[IsGranted('ROLE_USER')]
     public function historique(EntityManagerInterface $em): Response
     {
-    $user = $this->getUser();
+        $user = $this->getUser();
 
-    $historiques = $em->getRepository(Reservation::class)->createQueryBuilder('r')
-        ->join('r.seance', 's')
-        ->addSelect('s')
-        ->where('r.member = :user')
-        ->andWhere('s.date < :today')
-        ->setParameter('user', $user)
-        ->setParameter('today', new \DateTime('today'))
-        ->orderBy('s.date', 'DESC')
-        ->getQuery()
-        ->getResult();
+        $historiques = $em->getRepository(Reservation::class)->createQueryBuilder('r')
+            ->join('r.seance', 's')
+            ->addSelect('s')
+            ->where('r.member = :user')
+            ->andWhere('s.date < :today')
+            ->setParameter('user', $user)
+            ->setParameter('today', new \DateTime('today'))
+            ->orderBy('s.date', 'DESC')
+            ->getQuery()
+            ->getResult();
 
-    return $this->render('historique/index.html.twig', [
-        'historiques' => $historiques,
-        'total_historique' => count($historiques),
-    ]);
+        return $this->render('historique/index.html.twig', [
+            'historiques' => $historiques,
+            'total_historique' => count($historiques),
+        ]);
     }
 }

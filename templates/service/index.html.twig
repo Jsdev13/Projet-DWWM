@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Services - FitBooking{% endblock %}
+
+{% block body %}
+<div class="bg-[#141415] min-h-screen text-white pt-4 pb-24 px-4 max-w-md mx-auto">
+
+    {# En-tête #}
+    <div class="flex items-center justify-between mb-6 border-b border-gray-800 pb-3">
+        <h1 class="text-2xl font-black italic tracking-wider uppercase text-white">Nos services</h1>
+    </div>
+
+    {# Boucle dynamique sur les catégories en BDD #}
+    <div class="space-y-6">
+        {% for categorie in categories %}
+            
+            {# Attribution automatique de l'image selon le nom de la catégorie #}
+            {% set nom_lower = categorie.name|lower %}
+            {% if 'boxe' in nom_lower %}
+                {% set img_url = 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=600&auto=format&fit=crop' %}
+            {% elseif 'muscul' in nom_lower or 'poids' in nom_lower %}
+                {% set img_url = 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop' %}
+            {% elseif 'cardio' in nom_lower or 'running' in nom_lower %}
+                {% set img_url = 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=600&auto=format&fit=crop' %}
+            {% elseif 'yoga' in nom_lower or 'pilate' in nom_lower %}
+                {% set img_url = 'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop' %}
+            {% else %}
+                {% set img_url = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=600&auto=format&fit=crop' %}
+            {% endif %}
+
+            <div class="bg-white text-black rounded-xl overflow-hidden shadow-xl border border-gray-200 flex flex-col">
+                
+                {# Image dynamique #}
+                <div class="relative h-56 w-full bg-gray-900 overflow-hidden">
+                    <img 
+                        src="{{ img_url }}" 
+                        alt="{{ categorie.name }}" 
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+
+                {# Contenu texte dynamique #}
+                <div class="p-5 flex flex-col flex-grow justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            {# Titre dynamique #}
+                            <h2 class="text-2xl font-black uppercase tracking-tight text-black">
+                                {{ categorie.name }}
+                            </h2>
+
+                            {# Bouton d'édition (Admin) #}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_admin_categorie_edit', {'id': categorie.id}) }}" class="p-1.5 text-gray-400 hover:text-black transition rounded-lg border border-gray-200" title="Modifier la catégorie">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {# Description dynamique #}
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            {{ categorie.description }}
+                        </p>
+                    </div>
+
+                    {# Lien dynamique vers l'accueil filtré par cette catégorie #}
+                    {# Lien envoyant le nom de la catégorie dans l'URL #}
+                    {% set catName = categorie.nom is defined ? categorie.nom : categorie.name %}
+
+                    <a href="{{ path('app_seance_index', {'categorie': catName|lower}) }}" class="block w-full py-3 bg-black text-white text-center font-black uppercase text-sm tracking-wider rounded-lg hover:bg-gray-800 transition-colors">
+                    Découvrir
+                    </a>
+                </div>
+
+            </div>
+        {% else %}
+            <div class="text-center py-10 text-gray-400">
+                <p>Aucun service disponible pour le moment.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

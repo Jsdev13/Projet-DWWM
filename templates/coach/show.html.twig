@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% set nom = coach.nom is defined ? coach.nom : (coach.fullName is defined ? coach.fullName : coach.name|default('LOIC LECLAIR')) %}
+{% set nom = coach.prenom is defined and coach.prenom ? coach.prenom : (coach.nom is defined ? coach.nom : 'COACH') %}
 {% set specialite = coach.specialite is defined ? coach.specialite : 'COACH SPORTIF' %}
 {% set desc = coach.description is defined ? coach.description : '' %}
 {% set photo = coach.photo is defined ? coach.photo : 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&q=80&w=800' %}
@@ -9,13 +9,13 @@
     'Accompagnement personnalisé et suivi de performance.'
 ] %}
 
-{# Correction Twig : utilisation de ":" au lieu de "=>" #}
 {% set certifications = coach.certifications is defined ? coach.certifications : {
     'Diplôme d\'État': 'Éducateur sportif certifié.'
 } %}
 
-{% set note = coach.note is defined ? coach.note : '4.9/5' %}
-{% set nbAvis = coach.nbAvis is defined ? coach.nbAvis : 100 %}
+{# --- CALCUL DYNAMIQUE DE LA NOTE MOYENNE ET DES AVIS --- #}
+{% set avgRating = coach.averageRating is defined ? coach.averageRating : 0.0 %}
+{% set totalAvis = coach.notesReceived is defined ? coach.notesReceived|length : 0 %}
 
 {% block title %}Coach MR. {{ nom }} - FitBooking{% endblock %}
 
@@ -85,20 +85,34 @@
             </div>
         </div>
 
-        {# 5. SECTION NOTES ET AVIS #}
+        {# 5. SECTION NOTES ET AVIS DYNAMIQUES #}
         <div class="pt-4 space-y-2">
             <span class="text-[10px] font-black tracking-widest text-gray-300 uppercase">NOTES</span>
             
-            <div class="flex items-center space-x-1 text-[#E5BA5A]">
-                {% for i in 1..5 %}
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                    </svg>
-                {% endfor %}
+            <div class="flex items-center space-x-3">
+                <!-- Chiffre de la Moyenne (ex: 4.5) -->
+                <span class="text-3xl font-black text-white tracking-tight">
+                    {{ avgRating > 0 ? (avgRating|number_format(1, '.', '')) : '0.0' }}
+                </span>
+
+                <!-- Étoiles dynamiques selon la moyenne -->
+                <div class="flex space-x-1 text-[#E5BA5A]">
+                    {% set avgInt = avgRating|round(0, 'floor') %}
+                    {% for i in 1..5 %}
+                        <svg class="w-5 h-5 {{ i <= avgInt ? 'fill-current' : 'text-gray-600/60 fill-current' }}" viewBox="0 0 24 24">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    {% endfor %}
+                </div>
             </div>
 
+            <!-- Texte du nombre total d'avis -->
             <p class="text-xs font-semibold text-gray-300">
-                {{ note }} avis de {{ nbAvis }} client{% if nbAvis > 1 %}s{% endif %}
+                {% if totalAvis > 0 %}
+                    Basé sur {{ totalAvis }} avis client{% if totalAvis > 1 %}s{% endif %}
+                {% else %}
+                    Aucun avis pour le moment
+                {% endif %}
             </p>
         </div>
 
