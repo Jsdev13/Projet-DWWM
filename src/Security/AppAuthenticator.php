@@ -28,30 +28,34 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        // 1. Déclarer les variables en récupérant les données du formulaire
-        $email = $request->request->get('_username', '');
-        $password = $request->request->get('_password', '');
+        $email = $request->getPayload()->getString('_username');
 
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($password),
+            new PasswordCredentials($request->getPayload()->getString('_password')),
             [
-                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
+                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
                 new RememberMeBadge(),
             ]
         );
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
-
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
+{
+    if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+        return new RedirectResponse($targetPath);
     }
+
+    // Si c'est un Admin, redirection directe vers le dashboard admin
+    if (in_array('ROLE_ADMIN', $token->getRoleNames(), true)) {
+        return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+    }
+
+    // Sinon redirection classique
+    return new RedirectResponse($this->urlGenerator->generate('app_home'));
+}
 
     protected function getLoginUrl(Request $request): string
     {

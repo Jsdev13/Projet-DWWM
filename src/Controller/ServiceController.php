@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Repository\CategorieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route; // ⚠️ Attention : "Attribute\Route" et non "Annotation\Route"
+use Symfony\Component\Routing\Attribute\Route; 
 
 class ServiceController extends AbstractController
 {
