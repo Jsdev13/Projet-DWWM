@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <!-- Balise Viewport indispensable pour le responsive mobile -->
+        <!-- Balise Viewport pour le responsive mobile -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}FitBooking{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
@@ -21,9 +21,9 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body class="bg-[#141415] text-white min-h-screen font-sans flex flex-col">
-        
-        {# On affiche la topbar seulement si on n'est pas sur login/register ET si hide_topbar n'est pas activé #}
+<body class="bg-[#141415] text-white min-h-screen font-sans flex flex-col justify-between relative overflow-x-hidden">
+    
+            {# TOPBAR #}
         {% if app.current_route not in ['app_login', 'app_register'] and (hide_topbar is not defined or not hide_topbar) %}
             {% include 'components/topbar.html.twig' %}
         {% endif %}
@@ -44,24 +44,33 @@
             {% block body %}{% endblock %}
         </main>
 
-        {# Même condition pour la navbar du bas #}
+        {# BOTTOM NAVBAR #}
         {% if app.current_route not in ['app_login', 'app_register'] and (hide_topbar is not defined or not hide_topbar) %}
-            {% include 'components/navbar.html.twig' %}
+            {% if is_granted('ROLE_ADMIN') %}
+                {% include 'admin/navbar.html.twig' %}
+            {% else %}
+                {% include 'components/navbar.html.twig' %}
+            {% endif %}
         {% endif %}
 
     <script>
     document.addEventListener('click', function (e) {
-        // On écoute tous les clics sur la page
-        const btn = e.target.closest('button[onclick*="mobile-drawer"]');
-        if (btn) {
-            e.preventDefault();
-            const drawer = document.getElementById('mobile-drawer');
-            if (drawer) {
-                drawer.classList.toggle('hidden');
-            }
+    const drawer = document.getElementById('mobile-drawer');
+    if (!drawer) return;
+
+    // Clic sur le bouton Burger
+    if (e.target.closest('#burger-btn')) {
+        e.preventDefault();
+        drawer.classList.remove('hidden');
         }
+
+    // Clic sur la croix de fermeture
+    if (e.target.closest('#close-drawer-btn')) {
+        e.preventDefault();
+        drawer.classList.add('hidden');
+        } 
     });
     </script>
 
-    </body>
+</body>
 </html>

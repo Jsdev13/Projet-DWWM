@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Administrateur - FitBooking{% endblock %}
+
+{% block body %}
+<div class="bg-[#dfbe6b] min-h-screen text-black pb-28 font-sans max-w-md mx-auto shadow-2xl">
+
+    <div class="p-4 space-y-5">
+
+        {# TITRE PRINCIPAL #}
+        <h1 class="text-2xl font-black uppercase tracking-tight text-black drop-shadow-sm">
+            DASHBOARD ADMINISTRATEUR
+        </h1>
+
+        {# BOUTONS D'ACTION  #}
+        <div class="space-y-3">
+            <a href="#" class="flex items-center justify-center space-x-2 bg-black text-white font-extrabold py-3.5 px-4 rounded-md shadow-md hover:bg-gray-900 transition">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span class="text-xs uppercase tracking-wider">GÉRER CATÉGORIES</span>
+            </a>
+
+            <a href="#" class="flex items-center justify-center space-x-2 bg-white text-black font-extrabold border-2 border-black py-3 px-4 rounded-md shadow-md hover:bg-gray-100 transition">
+                <span class="text-lg leading-none">+</span>
+                <span class="text-xs uppercase tracking-wider">CRÉER COURS</span>
+            </a>
+        </div>
+
+        {# CARTES DES STATISTIQUES DYNAMIQUES #}
+        <div class="space-y-3.5">
+            
+            {# Total Cours #}
+            <div class="bg-white p-4 rounded-xl shadow-md border border-black/5">
+                <span class="text-xs font-black text-gray-700 uppercase tracking-wider block mb-1">TOTAL COURS</span>
+                <div class="flex items-baseline space-x-2">
+                    <span class="text-3xl font-black text-black">{{ totalCours }}</span>
+                    {% if coursCetteSemaine > 0 %}
+                        <span class="text-xs font-semibold text-gray-500">+{{ coursCetteSemaine }} cette semaine</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Taux de remplissage #}
+            <div class="bg-white p-4 rounded-xl shadow-md border border-black/5">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-black text-gray-700 uppercase tracking-wider">TAUX DE REMPLISSAGE DES COURS</span>
+                    <span class="text-xs font-bold text-gray-800">{{ tauxRemplissage }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-black h-2.5 rounded-full width-[{{ tauxRemplissage }}%]"></div>
+                </div>
+            </div>
+
+            {# Inscriptions hebdomadaires #}
+            <div class="bg-white p-4 rounded-xl shadow-md border border-black/5">
+                <span class="text-xs font-black text-gray-700 uppercase tracking-wider block mb-1">INSCRIPTIONS HEBDOMADAIRES</span>
+                <span class="text-3xl font-black text-black">{{ inscriptionsSemaine }}</span>
+            </div>
+
+        </div>
+
+            {# SECTION COURS À VENIR DYNAMIQUE #}
+<div class="pt-2">
+    <div class="flex justify-between items-baseline mb-3">
+        <h2 class="text-2xl font-black uppercase tracking-tight text-black drop-shadow-sm">
+            COURS À VENIR
+        </h2>
+        <a href="#" class="text-xs font-bold text-gray-800 uppercase hover:underline">VOIR TOUT</a>
+    </div>
+
+    <div class="space-y-3">
+        {% for seance in nextCours %}
+            <div class="bg-white p-3 rounded-xl shadow-md flex items-center justify-between border border-black/5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-[#1C1C1E] rounded-lg flex items-center justify-center text-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L7 8.3V13h2V9.8l.8-.9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        {# Nom de la séance ou de la catégorie #}
+                        <h3 class="font-black text-black text-sm uppercase leading-tight">
+                            {{ seance.name ?? (seance.categorie ? seance.categorie.name : 'Séance') }}
+                        </h3>
+
+                        {# Horaires et Coach #}
+                        <p class="text-xs text-gray-500 font-medium">
+                            {% if seance.startTime %}
+                                {{ seance.startTime|date('H:i') }}H
+                            {% endif %}
+                            
+                            {% if seance.coach %}
+                                - Coach {{ seance.coach.nom ?? seance.coach.prenom ?? seance.coach.name ?? seance.coach.firstname ?? '' }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                {# Inscriptions / Capacité max #}
+                <span class="bg-gray-200 text-gray-800 text-xs font-bold px-2.5 py-1 rounded">
+                    {{ "%02d"|format(seance.reservations|length) }}/{{ "%02d"|format(seance.capacityMax) }}
+                </span>
+            </div>
+        {% else %}
+            <div class="bg-white p-4 rounded-xl text-center text-sm font-bold text-gray-500">
+                Aucune séance à venir.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+    </div>
+</div>
+{% endblock %}

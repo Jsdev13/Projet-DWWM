@@ -33,7 +33,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[ORM\Column]
+    #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     /**
@@ -54,6 +54,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
+    /**
+     * @var Collection<int, Note>
+     */
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'coach')]
+    private Collection $notesReceived;
 
     public function __construct()
     {
@@ -79,31 +84,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER ( tous les utilisateurs qui sinscrit recoivent le role Membre)
         $roles[] = 'ROLE_USER';
+
+        if ($this->email === 'admin@gmail.com') {
+            $roles[] = 'ROLE_ADMIN';
+        }
 
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -111,9 +108,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -126,20 +120,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
-    public function __serialize(): array
+    public function eraseCredentials(): void
     {
-        $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
-
-        return $data;
+        // Nettoyage des données sensibles temporaires si nécessaire
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
     public function getReservations(): Collection
     {
         return $this->reservations;
@@ -158,7 +143,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
             if ($reservation->getMember() === $this) {
                 $reservation->setMember(null);
             }
@@ -167,9 +151,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Note>
-     */
     public function getNotes(): Collection
     {
         return $this->notes;
@@ -188,7 +169,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeNote(Note $note): static
     {
         if ($this->notes->removeElement($note)) {
-            // set the owning side to null (unless already changed)
             if ($note->getMember() === $this) {
                 $note->setMember(null);
             }
@@ -211,35 +191,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPrenom(): ?string
     {
-    return $this->prenom;
+        return $this->prenom;
     }
 
     public function setPrenom(string $prenom): static
     {
-    $this->prenom = $prenom;
+        $this->prenom = $prenom;
 
-    return $this;
-    } 
+        return $this;
+    }
 
-
-    /**
-     * @var Collection<int, Note>
-     */
-    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'coach')]
-    private Collection $notesReceived;
-
-
-    /**
-     * @return Collection<int, Note>
-     */
     public function getNotesReceived(): Collection
     {
         return $this->notesReceived;
     }
 
-    /**
-     * Calcule la moyenne des notes du coach
-     */
     public function getAverageRating(): float
     {
         if ($this->notesReceived->isEmpty()) {

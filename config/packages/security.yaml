@@ -42,8 +42,9 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
 
-        # Seul l'admin accède aux routes /admin
-        #- { path: ^/admin, roles: ROLE_ADMIN }
+        # Seul l'admin accède aux routes /admin et /dashboard/admin
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/dashboard/admin, roles: ROLE_ADMIN }
 
         # Seul un Membre connecté (ROLE_USER) accède aux séances et au profil
         #- { path: ^/seances, roles: ROLE_USER }
