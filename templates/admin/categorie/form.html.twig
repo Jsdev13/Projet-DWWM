@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Modifier la catégorie' : 'Ajouter une catégorie' }} - FitBooking{% endblock %}
+
+{% block body %}
+{% set name = categorie.name|default('')|lower %}
+{% if 'boxe' in name %}
+    {% set hero = 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=900&auto=format&fit=crop' %}
+{% elseif 'muscul' in name or 'poids' in name %}
+    {% set hero = 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=900&auto=format&fit=crop' %}
+{% else %}
+    {% set hero = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=900&auto=format&fit=crop' %}
+{% endif %}
+
+<div class="bg-[#663a3e] min-h-screen w-full pb-5 flex flex-col">
+    <div class="h-52 md:h-72 w-full bg-black overflow-hidden border-b border-black">
+        <img src="{{ hero }}" alt="{{ categorie.name|default('Nouvelle catégorie') }}" class="w-full h-full object-cover">
+    </div>
+
+    <div class="w-full px-4 md:px-8 py-5 flex-1">
+        <div class="flex items-center gap-2 text-white mb-5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 11v5m0-8h.01"/></svg>
+            <h1 class="text-xs font-black uppercase tracking-wide">Informations générales</h1>
+        </div>
+
+        {{ form_start(form, {'attr': {'id': 'categorie-form', 'class': 'space-y-4 w-full'}}) }}
+            <div>
+                {{ form_label(form.name, null, {'label_attr': {'class': 'block text-[9px] font-bold uppercase text-white mb-2'}}) }}
+                {{ form_widget(form.name, {'attr': {'class': 'w-full bg-white text-gray-800 rounded px-3 py-3 text-xs border-0 shadow focus:outline-none focus:ring-2 focus:ring-black', 'placeholder': 'Ex : Boxe'}}) }}
+                <div class="text-[10px] text-red-200 font-bold mt-1">{{ form_errors(form.name) }}</div>
+            </div>
+            <div>
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-[9px] font-bold uppercase text-white mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'w-full bg-white text-gray-800 rounded px-3 py-3 text-xs border-0 shadow focus:outline-none focus:ring-2 focus:ring-black resize-none'}}) }}
+                <div class="text-[10px] text-red-200 font-bold mt-1">{{ form_errors(form.description) }}</div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+
+    <div class="w-full px-4 md:px-8 space-y-2.5">
+        <button type="submit" form="categorie-form" class="w-full bg-black text-white py-4 rounded-md text-[9px] font-black uppercase tracking-[0.12em] hover:bg-[#171717] transition">
+            {{ is_edit ? 'Enregistrer les modifications' : 'Ajouter la catégorie' }}
+        </button>
+        <a href="{{ path('admin_categorie_index') }}" class="block w-full bg-white text-center text-[#4b3033] py-4 rounded-md text-[9px] font-black uppercase tracking-[0.12em] shadow hover:bg-gray-100 transition">Annuler</a>
+        {% if is_edit %}
+            <button id="open-delete-category" type="button" class="w-full text-red-100 py-2 text-[9px] font-black uppercase tracking-[0.12em] hover:text-white transition">Supprimer la catégorie</button>
+        {% endif %}
+    </div>
+</div>
+
+{% if is_edit %}
+<div id="delete-category-modal" class="fixed inset-0 z-50 hidden opacity-0 bg-black/70 backdrop-blur-sm p-4 flex items-center justify-center transition-opacity duration-200">
+    <div id="delete-category-card" class="w-full max-w-xs bg-white text-black rounded-2xl p-5 text-center shadow-2xl scale-95 transition-transform duration-200">
+        <h2 class="font-black mb-2">Supprimer cette catégorie ?</h2>
+        <p class="text-xs text-gray-500 mb-5">Les cours seront conservés, mais ne seront plus rattachés à « {{ categorie.name }} ».</p>
+        <form action="{{ path('admin_categorie_delete', {'id': categorie.id}) }}" method="post" class="flex gap-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete-categorie-' ~ categorie.id) }}">
+            <button id="close-delete-category" type="button" class="flex-1 py-2.5 bg-gray-100 rounded-xl text-xs font-black">Annuler</button>
+            <button type="submit" class="flex-1 py-2.5 bg-red-700 text-white rounded-xl text-xs font-black">Supprimer</button>
+        </form>
+    </div>
+</div>
+<script>
+(() => {
+    const open = document.getElementById('open-delete-category');
+    const close = document.getElementById('close-delete-category');
+    const modal = document.getElementById('delete-category-modal');
+    const card = document.getElementById('delete-category-card');
+    const show = () => {
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => { modal.classList.remove('opacity-0'); card.classList.remove('scale-95'); });
+    };
+    const hide = () => {
+        modal.classList.add('opacity-0'); card.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    };
+    if (open) open.onclick = show;
+    if (close) close.onclick = hide;
+    if (modal) modal.onclick = event => { if (event.target === modal) hide(); };
+})();
+</script>
+{% endif %}
+{% endblock %}

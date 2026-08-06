@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les catégories - FitBooking{% endblock %}
+
+{% block body %}
+<section class="bg-[#663a3e] min-h-screen pb-28 px-2 pt-5 text-white">
+    <div class="max-w-md mx-auto">
+        <div class="mb-5 px-1">
+            <h1 class="text-[11px] font-black uppercase tracking-[0.08em]">Administration / Gérer les catégories</h1>
+        </div>
+
+        <div class="space-y-0">
+            {% for categorie in categories %}
+                {% set categoryName = categorie.name|lower %}
+                {% if 'boxe' in categoryName %}
+                    {% set imageUrl = 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=900&auto=format&fit=crop' %}
+                {% elseif 'muscul' in categoryName or 'poids' in categoryName %}
+                    {% set imageUrl = 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=900&auto=format&fit=crop' %}
+                {% elseif 'cardio' in categoryName or 'running' in categoryName %}
+                    {% set imageUrl = 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=900&auto=format&fit=crop' %}
+                {% elseif 'yoga' in categoryName or 'pilate' in categoryName %}
+                    {% set imageUrl = 'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=900&auto=format&fit=crop' %}
+                {% else %}
+                    {% set imageUrl = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=900&auto=format&fit=crop' %}
+                {% endif %}
+
+                <article class="category-card overflow-hidden first:rounded-t-2xl last:rounded-b-2xl border-x border-white/50 last:border-b">
+                    <div class="bg-white text-[#333] h-[86px] px-4 flex items-center gap-3">
+                        <div class="w-11 h-11 shrink-0 bg-[#f7f7f7] border border-gray-300 flex items-center justify-center text-gray-600">
+                            {% if 'boxe' in categoryName %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 12l2-6 2 3 3-1-1 5 3 3M9 13l-2 7m6-6 1 6M5 8l3 2"/></svg>
+                            {% else %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M13 5a2 2 0 11-4 0 2 2 0 014 0zM8 11l3-3 3 3 3 1m-6-1-2 4-3 4m7-5 3 5"/></svg>
+                            {% endif %}
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <h2 class="text-base font-black uppercase truncate">{{ categorie.name }}</h2>
+                            <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">{{ categorie.seances|length }} cours</p>
+                        </div>
+
+                        <a href="{{ path('admin_categorie_edit', {'id': categorie.id}) }}" class="w-9 h-9 shrink-0 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white transition" title="Modifier {{ categorie.name }}" aria-label="Modifier {{ categorie.name }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 17l-4 1 1-4L16.5 3.5a2.121 2.121 0 013 3L9 17z"/></svg>
+                        </a>
+                        <button type="button" class="open-category-delete w-9 h-9 shrink-0 border border-gray-300 flex items-center justify-center hover:bg-red-700 hover:text-white transition"
+                                title="Supprimer {{ categorie.name }}" aria-label="Supprimer {{ categorie.name }}"
+                                data-name="{{ categorie.name|e('html_attr') }}"
+                                data-action="{{ path('admin_categorie_delete', {'id': categorie.id}) }}"
+                                data-token="{{ csrf_token('delete-categorie-' ~ categorie.id) }}">
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-10 0l1 13h6l1-13m-6 0V4h4v3"/></svg>
+                        </button>
+                    </div>
+                    <img src="{{ imageUrl }}" alt="{{ categorie.name }}" class="w-full h-60 object-cover">
+                </article>
+            {% else %}
+                <div class="bg-white/10 border border-white/20 rounded-xl p-8 text-center">
+                    <p class="text-sm font-bold">Aucune catégorie pour le moment.</p>
+                    <a href="{{ path('admin_categorie_new') }}" class="inline-block mt-4 bg-black px-5 py-3 text-[9px] font-black uppercase">Ajouter la première catégorie</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<div id="category-delete-modal" class="fixed inset-0 z-50 hidden opacity-0 bg-black/70 backdrop-blur-sm p-4 flex items-center justify-center transition-opacity duration-200">
+    <div id="category-delete-card" class="w-full max-w-xs bg-white text-black rounded-2xl p-5 text-center shadow-2xl scale-95 transition-transform duration-200">
+        <div class="w-12 h-12 mx-auto mb-3 bg-red-100 text-red-700 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-10 0l1 13h6l1-13m-6 0V4h4v3"/></svg>
+        </div>
+        <h2 class="font-black mb-2">Supprimer cette catégorie ?</h2>
+        <p class="text-xs text-gray-500 mb-5">Les cours seront conservés, mais ne seront plus rattachés à <strong id="category-delete-name" class="text-gray-800"></strong>.</p>
+        <form id="category-delete-form" method="post" class="flex gap-2">
+            <input id="category-delete-token" type="hidden" name="_token" value="">
+            <button id="close-category-delete" type="button" class="flex-1 py-2.5 bg-gray-100 rounded-xl text-xs font-black">Annuler</button>
+            <button type="submit" class="flex-1 py-2.5 bg-red-700 text-white rounded-xl text-xs font-black">Supprimer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function initCategoryManagement() {
+    const modal = document.getElementById('category-delete-modal');
+    const card = document.getElementById('category-delete-card');
+    const form = document.getElementById('category-delete-form');
+    const token = document.getElementById('category-delete-token');
+    const name = document.getElementById('category-delete-name');
+    const close = document.getElementById('close-category-delete');
+    if (!modal || !card || !form || !token || !name) return;
+
+    const hide = () => {
+        modal.classList.add('opacity-0');
+        card.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    };
+
+    document.querySelectorAll('.open-category-delete').forEach(button => {
+        button.onclick = () => {
+            form.action = button.dataset.action;
+            token.value = button.dataset.token;
+            name.textContent = `« ${button.dataset.name} »`;
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                close.focus();
+            });
+        };
+    });
+
+    if (close) close.onclick = hide;
+    modal.onclick = event => { if (event.target === modal) hide(); };
+}
+
+document.addEventListener('DOMContentLoaded', initCategoryManagement);
+document.addEventListener('turbo:load', initCategoryManagement);
+</script>
+{% endblock %}

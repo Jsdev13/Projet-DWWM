@@ -8,6 +8,11 @@
     {# En-tête #}
     <div class="flex items-center justify-between mb-6 border-b border-gray-800 pb-3">
         <h1 class="text-2xl font-black italic tracking-wider uppercase text-white">Nos services</h1>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_categorie_new') }}" class="w-9 h-9 flex items-center justify-center border border-[#dfbe6b] text-[#dfbe6b] hover:bg-[#dfbe6b] hover:text-black transition" title="Ajouter une catégorie" aria-label="Ajouter une catégorie">
+                <span class="text-xl leading-none">+</span>
+            </a>
+        {% endif %}
     </div>
 
     {# Boucle dynamique sur les catégories en BDD #}
@@ -48,9 +53,11 @@
                                 {{ categorie.name }}
                             </h2>
 
-                            {# Bouton d'édition (Admin) : retiré car la route
-                               "app_admin_categorie_edit" n'existe pas encore.
-                               À réactiver quand la gestion des catégories sera créée. #}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('admin_categorie_edit', {'id': categorie.id}) }}" class="w-9 h-9 border border-gray-400 flex items-center justify-center text-gray-700 hover:bg-black hover:text-white transition" title="Modifier {{ categorie.name }}" aria-label="Modifier {{ categorie.name }}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 17l-4 1 1-4L16.5 3.5a2.121 2.121 0 013 3L9 17z"/></svg>
+                                </a>
+                            {% endif %}
 
                         </div>
 
