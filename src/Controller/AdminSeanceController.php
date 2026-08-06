@@ -49,7 +49,69 @@ class AdminSeanceController extends AbstractController
 
         return $this->render('admin/seance/new.html.twig', [
             'form' => $form,
+            'seance' => $seance,
+            'is_edit' => false,
         ]);
+    }
+
+    #[Route('/dashboard/admin/cours/{id}/modifier', name: 'admin_seance_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    public function edit(Seance $seance, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
+        $form = $this->createForm(SeanceType::class, $seance);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $fileName = $this->uploadImage($imageFile, $slugger);
+
+                if ($fileName === null) {
+                    $this->addFlash('error', "L'image n'a pas pu être enregistrée. L'ancienne image a été conservée.");
+                } else {
+                    $seance->setImage($fileName);
+                }
+            }
+
+            $em->flush();
+            $this->addFlash('success', 'Le cours « ' . $seance->getName() . ' » a bien été modifié.');
+
+            return $this->redirectToRoute('app_seance_index');
+        }
+
+        return $this->render('admin/seance/new.html.twig', [
+            'form' => $form,
+            'seance' => $seance,
+            'is_edit' => true,
+        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+    }
+
+    #[Route('/dashboard/admin/cours/{id}/supprimer', name: 'admin_seance_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
+    public function delete(Seance $seance, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('delete-seance-' . $seance->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'La suppression a été annulée : jeton de sécurité invalide.');
+
+            return $this->redirectToRoute('app_seance_index');
+        }
+
+        $name = $seance->getName();
+
+        foreach ($seance->getReservations() as $reservation) {
+            $em->remove($reservation);
+        }
+
+        foreach ($seance->getNotes() as $note) {
+            $em->remove($note);
+        }
+
+        $em->remove($seance);
+        $em->flush();
+
+        $this->addFlash('success', 'Le cours « ' . $name . ' » a bien été supprimé.');
+
+        return $this->redirectToRoute('app_seance_index');
     }
 
     /**
@@ -71,4 +133,3 @@ class AdminSeanceController extends AbstractController
         return $fileName;
     }
 }
-
