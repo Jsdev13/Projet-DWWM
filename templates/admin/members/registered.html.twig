@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Membres inscrits - FitBooking{% endblock %}
+
+{% block body %}
+<section class="bg-[#edc75f] min-h-screen text-black pb-28 px-3 pt-5">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-xl font-black uppercase tracking-[-0.04em] text-[#543331] mb-4 pl-3">Membre inscrits cours</h1>
+
+        <div class="grid grid-cols-[minmax(0,1fr)_100px] gap-2 mb-3">
+            <label class="relative block">
+                <span class="sr-only">Rechercher un membre</span>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="member-search" type="search" placeholder="Rechercher membre…" class="w-full bg-white rounded-md py-2.5 pl-9 pr-2 text-[11px] font-semibold placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/30">
+            </label>
+
+            <label class="relative block">
+                <span class="sr-only">Filtrer par cours</span>
+                <select id="seance-filter" class="appearance-none w-full bg-white rounded-md py-2.5 pl-2.5 pr-7 text-[10px] font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-black/30 cursor-pointer truncate">
+                    <option value="all">Cours</option>
+                    {% for seance in seances %}
+                        <option value="{{ seance.id }}">{{ seance.name }} — {{ seance.date|date('d/m/Y') }}</option>
+                    {% endfor %}
+                </select>
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </label>
+        </div>
+
+        <div class="bg-[#050505] rounded-md shadow-xl overflow-hidden min-h-[570px] border border-black px-5 pt-6 pb-8">
+            <div class="pb-5 border-b border-[#272727] flex items-center justify-between">
+                <h2 class="text-white text-base font-black uppercase tracking-[-0.04em]">Inscrits</h2>
+                <span id="member-count" class="bg-[#191713] border border-[#493b18] text-[#edc75f] min-w-[96px] text-center px-2 py-1 text-[8px] font-black uppercase">
+                    {{ reservations|length }} membre{{ reservations|length > 1 ? 's' : '' }}
+                </span>
+            </div>
+
+            <div id="members-list" class="pt-5 space-y-0.5">
+                {% for reservation in reservations %}
+                    {% set member = reservation.member %}
+                    {% set seance = reservation.seance %}
+                    {% set categoryName = seance.categorie ? seance.categorie.name : seance.name %}
+                    {% set isBoxe = 'boxe' in categoryName|lower %}
+                    <article class="member-row bg-[#242425] border-l-2 border-[#edc75f] px-3 py-3 flex items-center gap-3 hover:bg-[#2c2c2e] transition"
+                             data-member="{{ ((member.prenom ?? '') ~ ' ' ~ member.email)|lower|e('html_attr') }}"
+                             data-seance="{{ seance.id }}">
+                        <div class="w-10 h-10 shrink-0 border border-white/15 bg-[#19191a] flex items-center justify-center text-gray-300">
+                            {% if isBoxe %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 12l2-6 2 3 3-1-1 5 3 3M9 13l-2 7m6-6 1 6M5 8l3 2"/></svg>
+                            {% else %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M13 5a2 2 0 11-4 0 2 2 0 014 0zM8 11l3-3 3 3 3 1m-6-1-2 4-3 4m7-5 3 5"/></svg>
+                            {% endif %}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="text-white text-xs font-black truncate">{{ member.prenom ?: member.email }}</h3>
+                            <p class="text-[9px] text-[#b8a890] font-bold mt-1">
+                                Inscrit le: {{ (reservation.createdAt ?? reservation.dateCreate)|date('d/m/Y') }}
+                            </p>
+                            <span class="inline-block mt-2 {{ isBoxe ? 'bg-[#edc412] text-black' : 'bg-[#494949] text-gray-300' }} px-2.5 py-1 text-[8px] font-black uppercase tracking-wider">
+                                {{ seance.categorie ? seance.categorie.name : seance.name }}
+                            </span>
+                        </div>
+                        <button type="button"
+                                class="open-unregister-modal w-9 h-9 shrink-0 flex items-center justify-center text-[#d7ad18] hover:text-[#f4d44b] hover:bg-white/5 rounded transition"
+                                aria-label="Désinscrire {{ member.prenom ?: member.email }}"
+                                title="Désinscrire ce membre"
+                                data-member-name="{{ (member.prenom ?: member.email)|e('html_attr') }}"
+                                data-course-name="{{ seance.name|e('html_attr') }}"
+                                data-action="{{ path('admin_member_unregister', {'id': reservation.id}) }}"
+                                data-token="{{ csrf_token('unregister-' ~ reservation.id) }}">
+                            <svg class="w-5 h-5 rotate-180 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4 4-4m-4 4h8a4 4 0 014 4v2"/>
+                            </svg>
+                        </button>
+                    </article>
+                {% else %}
+                    <div class="col-span-full py-16 text-center text-sm font-bold text-gray-400">Aucun membre inscrit pour le moment.</div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center pt-5">
+                <button id="load-more-members" type="button" class="bg-[#edc75f] hover:bg-[#f4d478] text-[#3e3016] px-9 py-3 text-[9px] font-black uppercase tracking-wide transition">
+                    Charger plus
+                </button>
+            </div>
+
+            <div id="members-empty" class="hidden py-16 px-4 text-center">
+                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H2v-2a4 4 0 014-4h3m6-4a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <p class="text-sm font-black text-white">Aucun membre trouvé</p>
+                <p class="text-xs text-gray-500 mt-1">Modifiez votre recherche ou choisissez un autre cours.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="unregister-modal" class="fixed inset-0 z-50 hidden opacity-0 bg-black/70 backdrop-blur-sm p-4 flex items-center justify-center transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="unregister-modal-title">
+    <div id="unregister-modal-card" class="w-full max-w-xs bg-white text-black rounded-2xl p-5 text-center shadow-2xl scale-95 transition-transform duration-200">
+        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 text-red-700 flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9l-6 6-6-6"/></svg>
+        </div>
+        <h2 id="unregister-modal-title" class="font-black text-base mb-2">Désinscrire ce membre ?</h2>
+        <p class="text-xs text-gray-500 mb-5">
+            <strong id="unregister-member-name" class="text-gray-800"></strong> sera retiré(e) du cours <strong id="unregister-course-name" class="text-gray-800"></strong>.
+        </p>
+        <form id="unregister-form" method="post" class="flex gap-2">
+            <input id="unregister-token" type="hidden" name="_token" value="">
+            <button id="close-unregister-modal" type="button" class="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-black transition">Annuler</button>
+            <button id="confirm-unregister" type="submit" class="flex-1 py-2.5 rounded-xl bg-red-700 hover:bg-red-800 text-white text-xs font-black transition">Désinscrire</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function initRegisteredMembers() {
+    const search = document.getElementById('member-search');
+    const filter = document.getElementById('seance-filter');
+    const rows = document.querySelectorAll('.member-row');
+    const counter = document.getElementById('member-count');
+    const empty = document.getElementById('members-empty');
+    const loadMore = document.getElementById('load-more-members');
+    const unregisterModal = document.getElementById('unregister-modal');
+    const unregisterCard = document.getElementById('unregister-modal-card');
+    const unregisterForm = document.getElementById('unregister-form');
+    const unregisterToken = document.getElementById('unregister-token');
+    const unregisterMemberName = document.getElementById('unregister-member-name');
+    const unregisterCourseName = document.getElementById('unregister-course-name');
+    const closeUnregister = document.getElementById('close-unregister-modal');
+    const pageSize = 4;
+    let displayLimit = pageSize;
+
+    if (!search || !filter || !counter) return;
+
+    const closeUnregisterModal = () => {
+        if (!unregisterModal || !unregisterCard) return;
+        unregisterModal.classList.add('opacity-0');
+        unregisterCard.classList.remove('scale-100');
+        unregisterCard.classList.add('scale-95');
+        setTimeout(() => unregisterModal.classList.add('hidden'), 200);
+    };
+
+    document.querySelectorAll('.open-unregister-modal').forEach(button => {
+        button.onclick = () => {
+            if (!unregisterModal || !unregisterCard || !unregisterForm || !unregisterToken) return;
+            unregisterForm.action = button.dataset.action;
+            unregisterToken.value = button.dataset.token;
+            unregisterMemberName.textContent = `« ${button.dataset.memberName} »`;
+            unregisterCourseName.textContent = `« ${button.dataset.courseName} »`;
+            unregisterModal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                unregisterModal.classList.remove('opacity-0');
+                unregisterCard.classList.remove('scale-95');
+                unregisterCard.classList.add('scale-100');
+                closeUnregister.focus();
+            });
+        };
+    });
+
+    if (closeUnregister) closeUnregister.onclick = closeUnregisterModal;
+    if (unregisterModal) {
+        unregisterModal.onclick = event => {
+            if (event.target === unregisterModal) closeUnregisterModal();
+        };
+    }
+
+    const refresh = () => {
+        const query = search.value.toLowerCase().trim();
+        const seanceId = filter.value;
+        const matchingRows = [];
+
+        rows.forEach(row => {
+            const matchesMember = !query || row.dataset.member.includes(query);
+            const matchesSeance = seanceId === 'all' || row.dataset.seance === seanceId;
+            if (matchesMember && matchesSeance) matchingRows.push(row);
+        });
+
+        rows.forEach(row => row.classList.add('hidden'));
+        matchingRows.slice(0, displayLimit).forEach(row => row.classList.remove('hidden'));
+
+        const total = matchingRows.length;
+        counter.textContent = `${total} membre${total > 1 ? 's' : ''}`;
+        if (empty) empty.classList.toggle('hidden', total !== 0 || rows.length === 0);
+        if (loadMore) loadMore.classList.toggle('hidden', displayLimit >= total);
+    };
+
+    search.oninput = () => { displayLimit = pageSize; refresh(); };
+    filter.onchange = () => { displayLimit = pageSize; refresh(); };
+    if (loadMore) {
+        loadMore.onclick = () => {
+            displayLimit += pageSize;
+            refresh();
+        };
+    }
+    refresh();
+}
+
+document.addEventListener('DOMContentLoaded', initRegisteredMembers);
+document.addEventListener('turbo:load', initRegisteredMembers);
+</script>
+{% endblock %}
