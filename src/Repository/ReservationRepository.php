@@ -16,6 +16,22 @@ class ReservationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reservation::class);
     }
 
+    /**
+     * @return Reservation[]
+     */
+    public function findAllWithMemberAndSeance(): array
+    {
+        return $this->createQueryBuilder('reservation')
+            ->innerJoin('reservation.member', 'registeredMember')
+            ->addSelect('registeredMember')
+            ->innerJoin('reservation.seance', 'seance')
+            ->addSelect('seance')
+            ->orderBy('reservation.createdAt', 'DESC')
+            ->addOrderBy('reservation.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Reservation[] Returns an array of Reservation objects
     //     */
