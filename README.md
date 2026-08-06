@@ -17,7 +17,7 @@ La plateforme répond aux besoins des utilisateurs recherchant une solution simp
  - *Accès au catalogue d'activité des trois univers (musculation,boxe,cardio)*
  - *Accès au calendrier des cours*
  - *Réserver un créneau*
- - *Consulter et annuler ss réservations*
+ - *Consulter et annuler sa réservations*
 
 ### Administrateur
 
