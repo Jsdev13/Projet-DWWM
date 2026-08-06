@@ -39,8 +39,8 @@ class AdminDashboardController extends AbstractController
             $totalReservations += count($seance->getReservations());
         }
 
-        $tauxRemplissage = $totalCapacity > 0 
-            ? round(($totalReservations / $totalCapacity) * 100) 
+        $tauxRemplissage = $totalCapacity > 0
+            ? max(0, min(100, (int) round(($totalReservations / $totalCapacity) * 100)))
             : 0;
 
         // 4. Les 5 derniers cours
