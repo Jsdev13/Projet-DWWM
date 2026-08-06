@@ -21,7 +21,7 @@
                 <span class="text-xs uppercase tracking-wider">GÉRER CATÉGORIES</span>
             </a>
 
-            <a href="#" class="flex items-center justify-center space-x-2 bg-white text-black font-extrabold border-2 border-black py-3 px-4 rounded-md shadow-md hover:bg-gray-100 transition">
+            <a href="{{ path('admin_seance_new') }}" class="flex items-center justify-center space-x-2 bg-white text-black font-extrabold border-2 border-black py-3 px-4 rounded-md shadow-md hover:bg-gray-100 transition">
                 <span class="text-lg leading-none">+</span>
                 <span class="text-xs uppercase tracking-wider">CRÉER COURS</span>
             </a>
@@ -73,12 +73,17 @@
         {% for seance in nextCours %}
             <div class="bg-white p-3 rounded-xl shadow-md flex items-center justify-between border border-black/5">
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-[#1C1C1E] rounded-lg flex items-center justify-center text-white">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L7 8.3V13h2V9.8l.8-.9z"/>
-                        </svg>
-                    </div>
+                    {% if seance.image %}
+                        <img src="{{ asset('images/seances/' ~ seance.image) }}" alt="{{ seance.name }}" class="w-12 h-12 rounded-lg object-cover">
+                    {% else %}
+                        <div class="w-12 h-12 bg-[#1C1C1E] rounded-lg flex items-center justify-center text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L7 8.3V13h2V9.8l.8-.9z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
                     <div>
+
                         {# Nom de la séance ou de la catégorie #}
                         <h3 class="font-black text-black text-sm uppercase leading-tight">
                             {{ seance.name ?? (seance.categorie ? seance.categorie.name : 'Séance') }}

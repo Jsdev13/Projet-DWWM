@@ -34,6 +34,10 @@ class Seance
     #[ORM\Column]
     private ?int $capacity_max = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
+
     #[ORM\ManyToOne(inversedBy: 'seances')]
     private ?Coach $coach = null;
 
@@ -137,6 +141,19 @@ class Seance
 
         return $this;
     }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
 
     public function getCoach(): ?Coach
     {
