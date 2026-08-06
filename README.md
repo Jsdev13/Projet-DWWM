@@ -22,8 +22,11 @@ La plateforme répond aux besoins des utilisateurs recherchant une solution simp
 ### Administrateur
 
 - *Ajouter,modifier et supprimer des cours*
+- *Modifier,supprimer les catégories*
 - *Consulter les statistiques des reservations*
 - *Consulter la liste des participants inscrits par session*
+- *Consulter la liste des utilisateurs inscrits sur le site*
+- *Desinscrire un utilisateur d'une séance*
 
 # User Stories
 
