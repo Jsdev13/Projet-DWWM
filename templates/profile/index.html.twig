@@ -89,7 +89,7 @@
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden divide-y divide-gray-200" id="seances-container">
         {% for reservation in reservations %}
             {% set seance = reservation.seance %}
-            {% set catName = seance.categorie ? (seance.categorie.nom is defined ? seance.categorie.nom : seance.categorie) : '' %}
+            {% set catName = seance.categorie ? seance.categorie.name : '' %}
             
             <div class="seance-item p-3.5 flex items-center justify-between transition hover:bg-gray-50"
                  data-title="{{ seance.name|lower }}" 

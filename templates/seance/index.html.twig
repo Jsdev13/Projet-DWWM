@@ -40,8 +40,8 @@
                 <option value="all">Toutes</option>
                 {% if categories is defined and categories is not empty %}
                     {% for cat in categories %}
-                        {% set catVal = cat.nom is defined ? cat.nom : (cat.name is defined ? cat.name : cat.id) %}
-                        <option value="{{ catVal|lower }}">{{ cat.nom is defined ? cat.nom : (cat.name is defined ? cat.name : 'Catégorie') }}</option>
+                        {% set catVal = cat.name|default(cat.id) %}
+                        <option value="{{ catVal|lower }}">{{ cat.name|default('Catégorie') }}</option>
                     {% endfor %}
                 {% else %}
                     <option value="musculation">Musculation</option>
@@ -57,8 +57,8 @@
     <div id="seances-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[500px] items-start">
         
         {% for seance in seances %}
-            {% set catName = seance.categorie ? (seance.categorie.nom is defined ? seance.categorie.nom : (seance.categorie.name is defined ? seance.categorie.name : seance.categorie)) : 'Général' %}
-            {% set catId = seance.categorie ? (seance.categorie.id is defined ? seance.categorie.id : '') : '' %}
+            {% set catName = seance.categorie ? seance.categorie.name : 'Général' %}
+            {% set catId = seance.categorie ? seance.categorie.id : '' %}
             {% set nbReservations = seance.reservations is defined ? seance.reservations|length : 0 %}
             {% set maxPlaces = seance.capacityMax|default(10) %}
             {% set placesRestantes = maxPlaces - nbReservations %}
@@ -110,7 +110,7 @@
                                 {% endif %}
                             </p>
                             <p class="text-xs font-bold text-black mt-1">
-                                Coach : {{ seance.coach ? (seance.coach.nom is defined ? seance.coach.nom : seance.coach) : 'JONATHAN SETIAO' }}
+                                Coach : {{ seance.coach ? (seance.coach.firstname ~ ' ' ~ seance.coach.lastname) : 'JONATHAN SETIAO' }}
                             </p>
                         </div>
                     </div>

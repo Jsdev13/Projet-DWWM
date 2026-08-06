@@ -48,14 +48,10 @@
                                 {{ categorie.name }}
                             </h2>
 
-                            {# Bouton d'édition (Admin) #}
-                            {% if is_granted('ROLE_ADMIN') %}
-                                <a href="{{ path('app_admin_categorie_edit', {'id': categorie.id}) }}" class="p-1.5 text-gray-400 hover:text-black transition rounded-lg border border-gray-200" title="Modifier la catégorie">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                    </svg>
-                                </a>
-                            {% endif %}
+                            {# Bouton d'édition (Admin) : retiré car la route
+                               "app_admin_categorie_edit" n'existe pas encore.
+                               À réactiver quand la gestion des catégories sera créée. #}
+
                         </div>
 
                         {# Description dynamique #}
